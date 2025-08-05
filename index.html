@@ -142,59 +142,37 @@
             outputElement.classList.add('hidden');
             loadingElement.classList.remove('hidden');
 
-            const apiKey = "AIzaSyBlLzxf_jCEhw3LGBFiJWKyBUg64sFV0Zo";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
+            const proxyApiUrl = "https://gemini-proxy-notion.michael-araujo.workers.dev/";
+            
             const payload = { 
-                contents: [{ 
-                    parts: [{ text: prompt }] 
-                }] 
+                prompt: prompt 
             };
 
-            let retries = 0;
-            const maxRetries = 5;
-            const initialDelay = 1000;
+            const response = await fetch(proxyApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
 
-            const executeFetch = async () => {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-                    const result = await response.json();
-                    
-                    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (text) {
-                        const formattedText = text.replace(/\n/g, '<br>');
-                        outputElement.innerHTML = formattedText;
-                        outputElement.classList.remove('hidden');
-                    } else {
-                        outputElement.innerHTML = "Désolé, je n'ai pas pu générer de réponse. Veuillez réessayer.";
-                        outputElement.classList.remove('hidden');
-                    }
-                } catch (error) {
-                    console.error('API call failed:', error);
-                    if (retries < maxRetries) {
-                        retries++;
-                        const delay = initialDelay * Math.pow(2, retries);
-                        console.log(`Retrying in ${delay}ms...`);
-                        await new Promise(res => setTimeout(res, delay));
-                        await executeFetch();
-                    } else {
-                        outputElement.innerHTML = "Une erreur est survenue lors de la connexion à l'API. Cela peut être dû aux paramètres de sécurité de la page d'intégration. Veuillez vérifier votre connexion et réessayer.";
-                        outputElement.classList.remove('hidden');
-                    }
-                } finally {
-                    loadingElement.classList.add('hidden');
-                }
-            };
-            await executeFetch();
+            if (!response.ok) {
+                outputElement.innerHTML = `Erreur lors de l'appel au proxy: ${response.statusText}`;
+                outputElement.classList.remove('hidden');
+                loadingElement.classList.add('hidden');
+                return;
+            }
+            
+            const result = await response.json();
+            
+            const text = result?.text;
+            if (text) {
+                const formattedText = text.replace(/\n/g, '<br>');
+                outputElement.innerHTML = formattedText;
+                outputElement.classList.remove('hidden');
+            } else {
+                outputElement.innerHTML = "Désolé, je n'ai pas pu générer de réponse. Veuillez réessayer.";
+                outputElement.classList.remove('hidden');
+            }
+            loadingElement.classList.add('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
