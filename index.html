@@ -21,6 +21,14 @@
             transform: rotate(180deg);
         }
 
+        /* --- Loading Text Animation --- */
+        #loading-text {
+            transition: opacity 0.5s ease-in-out;
+        }
+        #loading-text.is-fading {
+            opacity: 0;
+        }
+
         /* --- Animation: Typewriter --- */
         .typewriter-loader {
             --blue: #5C86FF;
@@ -295,7 +303,7 @@
                             <div class="keyboard"></div>
                         </div>
                     </div>
-                    <p class="text-[#010132] font-semibold">Rédaction en cours...</p>
+                    <p id="loading-text" class="text-[#010132] font-semibold">Rédaction en cours...</p>
                 </div>
             </div>
         </div>
@@ -325,10 +333,58 @@
             return html;
         }
 
+        let loadingInterval;
+
+        const allLoadingMessages = [
+            "Assemblage des idées...",
+            "Préparation de la toile...",
+            "Mélange des couleurs...",
+            "Touche finale du pinceau...",
+            "Votre chef-d'œuvre arrive...",
+            "Démarrage des machines...",
+            "Calibration des circuits...",
+            "Compilation des données...",
+            "Optimisation de l'algorithme...",
+            "Génération du résultat...",
+            "Consultation de la boule de cristal...",
+            "Mélange des potions...",
+            "Invocation des esprits créatifs...",
+            "Saupoudrage de poussière d'étoiles...",
+            "La magie opère..."
+        ];
+
+        /**
+         * Shuffles array in place.
+         * @param {Array} a items An array containing the items.
+         */
+        function shuffle(a) {
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+
         async function callGeminiAPI(prompt, outputElement, loadingElement) {
             outputElement.innerHTML = '';
             outputElement.classList.add('hidden');
             loadingElement.classList.remove('hidden');
+
+            const loadingTextElement = document.getElementById('loading-text');
+            const shuffledMessages = shuffle([...allLoadingMessages]);
+            
+            let messageIndex = 0;
+            loadingTextElement.textContent = shuffledMessages[messageIndex];
+            
+            loadingInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % shuffledMessages.length;
+                loadingTextElement.classList.add('is-fading');
+                setTimeout(() => {
+                    loadingTextElement.textContent = shuffledMessages[messageIndex];
+                    loadingTextElement.classList.remove('is-fading');
+                }, 500);
+            }, 2000);
 
             const proxyApiUrl = "https://gemini-proxy-notion.michael-araujo.workers.dev/"; 
             
@@ -361,6 +417,7 @@
                 outputElement.innerHTML = "Désolé, une erreur est survenue. Veuillez réessayer.";
                 outputElement.classList.remove('hidden');
             } finally {
+                clearInterval(loadingInterval);
                 loadingElement.classList.add('hidden');
             }
         }
@@ -446,8 +503,10 @@
             }
             
             generatePromptBtn.addEventListener('click', () => {
-                if (selectedValue) {
-                    const prompt = `Rédigez un prompt efficace et précis pour une IA générative, adapté au contexte d'un organisme communautaire (OBNL), pour accomplir la tâche suivante : "${selectedValue}". Mettez en évidence le mot "**Prompt**" en l'entourant de double astérisques. Pour les éléments que l'utilisateur devra compléter, utilisez la syntaxe suivante : [[ÉLÉMENT À COMPLÉTER]].`;
+                const selectedOption = options.find(opt => opt.value === selectedValue);
+                if (selectedOption) {
+                    const taskText = selectedOption.text.toLowerCase();
+                    const prompt = `Ta réponse doit commencer par une phrase d'introduction amicale et contextuelle qui varie à chaque fois. Par exemple : "Voici un prompt que vous pourriez utiliser avec votre agent conversationnel préféré pour ${taskText} :" ou "Pour vous aider à ${taskText}, voici une suggestion de prompt :".\n\nEnsuite, rédige le prompt lui-même. Ce prompt doit être adapté au contexte d'un organisme communautaire (OBNL).\n\nInstructions de formatage pour le prompt que tu génères :\n1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).\n2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].`;
                     callGeminiAPI(prompt, promptOutput, promptLoading);
                 }
             });
