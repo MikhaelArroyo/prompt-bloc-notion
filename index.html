@@ -7,10 +7,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* --- Custom Select --- */
+        .select-arrow {
+            transition: transform 0.3s ease;
+        }
+        .select-arrow-up {
+            transform: rotate(180deg);
         }
 
         /* --- Animation: Typewriter --- */
@@ -255,13 +263,18 @@
         <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg flex flex-col max-w-2xl mx-auto">
             <div class="flex-grow">
                 <p class="text-slate-600 mb-4">Sélectionnez une tâche pour obtenir un prompt adapté que vous pourriez utiliser avec un outil d'IA.</p>
-                <select id="prompt-select" class="w-full p-3 border rounded-lg mb-4 transition-all duration-300">
-                    <option value="">Sélectionnez une tâche...</option>
-                    <option value="rédiger un courriel de remerciement pour un bénévole">Rédiger un courriel de remerciement</option>
-                    <option value="résumer un rapport financier annuel">Résumer un rapport financier</option>
-                    <option value="créer un plan de communication pour un événement">Créer un plan de communication</option>
-                    <option value="brainstormer des idées de levée de fonds">Brainstormer des idées de levée de fonds</option>
-                </select>
+                <!-- Custom Select Component -->
+                <div class="relative" id="custom-select-container">
+                    <div id="select-selected" class="w-full p-3 border rounded-lg mb-4 transition-all duration-300 flex justify-between items-center cursor-pointer">
+                        <span id="select-text">Sélectionnez une tâche...</span>
+                        <svg id="select-arrow" class="select-arrow w-5 h-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div id="select-options" class="hidden absolute top-full left-0 right-0 bg-white border border-t-0 border-slate-300 rounded-b-lg shadow-lg z-10 overflow-hidden">
+                        <!-- Options will be populated by JS -->
+                    </div>
+                </div>
             </div>
             <div>
                 <button id="generate-prompt-btn" class="w-full bg-[#49b048] hover:bg-[#3f993e] text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-slate-400 flex items-center justify-center" disabled>
@@ -305,6 +318,8 @@
         function parseMarkdown(text) {
             // Convert **bold** to <strong>bold</strong>
             let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Convert [[placeholder]] to styled code tag
+            html = html.replace(/\[\[(.*?)\]\]/g, '<code class="bg-slate-200 text-red-600 font-mono py-1 px-2 rounded-md text-sm">[$1]</code>');
             // Convert newlines to <br>
             html = html.replace(/\n/g, '<br>');
             return html;
@@ -351,15 +366,65 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const promptSelect = document.getElementById('prompt-select');
+            const selectContainer = document.getElementById('custom-select-container');
+            const selectedDisplay = document.getElementById('select-selected');
+            const selectText = document.getElementById('select-text');
+            const selectArrow = document.getElementById('select-arrow');
+            const optionsContainer = document.getElementById('select-options');
+            
             const generatePromptBtn = document.getElementById('generate-prompt-btn');
             const btnEmoji = document.getElementById('btn-emoji');
             const btnSpinner = document.getElementById('btn-spinner');
             const promptOutput = document.getElementById('prompt-output');
             const promptLoading = document.getElementById('prompt-loading');
             
+            let selectedValue = "";
+
+            const options = [
+                { value: "", text: "Sélectionnez une tâche..." },
+                { value: "rédiger un courriel de remerciement pour un bénévole", text: "Rédiger un courriel de remerciement" },
+                { value: "résumer un rapport financier annuel", text: "Résumer un rapport financier" },
+                { value: "créer un plan de communication pour un événement", text: "Créer un plan de communication" },
+                { value: "brainstormer des idées de levée de fonds", text: "Brainstormer des idées de levée de fonds" }
+            ];
+
+            // Populate options
+            options.forEach(option => {
+                const optionEl = document.createElement('div');
+                optionEl.textContent = option.text;
+                optionEl.dataset.value = option.value;
+                optionEl.classList.add('p-3', 'cursor-pointer', 'hover:bg-slate-100');
+                if (option.value === "") {
+                    optionEl.classList.add('text-slate-500');
+                }
+                optionEl.addEventListener('click', () => {
+                    selectText.textContent = option.text;
+                    selectedValue = option.value;
+                    closeSelect();
+                    updateUIState();
+                });
+                optionsContainer.appendChild(optionEl);
+            });
+
+            function closeSelect() {
+                optionsContainer.classList.add('hidden');
+                selectArrow.classList.remove('select-arrow-up');
+            }
+
+            selectedDisplay.addEventListener('click', (e) => {
+                e.stopPropagation();
+                optionsContainer.classList.toggle('hidden');
+                selectArrow.classList.toggle('select-arrow-up');
+            });
+
+            window.addEventListener('click', (e) => {
+                if (!selectContainer.contains(e.target)) {
+                    closeSelect();
+                }
+            });
+
             function updateUIState() {
-                const isTaskSelected = promptSelect.value !== '';
+                const isTaskSelected = selectedValue !== '';
                 
                 generatePromptBtn.disabled = !isTaskSelected;
                 
@@ -372,20 +437,17 @@
                 }
                 
                 if (isTaskSelected) {
-                    promptSelect.classList.remove('border-[#49b048]', 'focus:ring-[#49b048]', 'focus:border-[#49b048]');
-                    promptSelect.classList.add('border-[#010132]', 'border-2', 'focus:ring-[#010132]', 'focus:border-[#010132]');
+                    selectedDisplay.classList.remove('border-[#49b048]');
+                    selectedDisplay.classList.add('border-[#010132]', 'border-2');
                 } else {
-                    promptSelect.classList.remove('border-[#010132]', 'border-2', 'focus:ring-[#010132]', 'focus:border-[#010132]');
-                    promptSelect.classList.add('border-[#49b048]', 'focus:ring-[#49b048]', 'focus:border-[#49b048]');
+                    selectedDisplay.classList.remove('border-[#010132]', 'border-2');
+                    selectedDisplay.classList.add('border-[#49b048]');
                 }
             }
             
-            promptSelect.addEventListener('change', updateUIState);
-            
             generatePromptBtn.addEventListener('click', () => {
-                const task = promptSelect.value;
-                if (task) {
-                    const prompt = `Rédigez un prompt efficace et précis pour une IA générative, afin de l'aider à accomplir la tâche suivante : "${task}". Mettez en évidence le mot "Prompt" en l'entourant de double astérisques (par exemple, **Prompt**).`;
+                if (selectedValue) {
+                    const prompt = `Rédigez un prompt efficace et précis pour une IA générative, adapté au contexte d'un organisme communautaire (OBNL), pour accomplir la tâche suivante : "${selectedValue}". Mettez en évidence le mot "**Prompt**" en l'entourant de double astérisques. Pour les éléments que l'utilisateur devra compléter, utilisez la syntaxe suivante : [[ÉLÉMENT À COMPLÉTER]].`;
                     callGeminiAPI(prompt, promptOutput, promptLoading);
                 }
             });
