@@ -142,7 +142,7 @@
             outputElement.classList.add('hidden');
             loadingElement.classList.remove('hidden');
 
-            const proxyApiUrl = "https://gemini-proxy-notion.michael-araujo.workers.dev/";
+            const proxyApiUrl = "https://gemini-proxy-notion.michael-araujo.workers.dev/"; 
             
             const payload = { 
                 prompt: prompt 
@@ -181,14 +181,15 @@
             const promptOutput = document.getElementById('prompt-output');
             const promptLoading = document.getElementById('prompt-loading');
             
+            promptSelect.addEventListener('change', () => {
+                generatePromptBtn.disabled = !promptSelect.value;
+            });
+
             generatePromptBtn.addEventListener('click', () => {
                 const task = promptSelect.value;
                 if (task) {
                     const prompt = `Rédigez un prompt efficace et précis pour une IA générative, afin de l'aider à accomplir la tâche suivante : "${task}". Donnez un seul exemple de prompt.`;
                     callGeminiAPI(prompt, promptOutput, promptLoading);
-                } else {
-                    promptOutput.innerHTML = "Veuillez sélectionner une tâche pour générer un prompt.";
-                    promptOutput.classList.remove('hidden');
                 }
             });
         });
