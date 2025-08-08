@@ -546,13 +546,17 @@
         const customTaskInput = document.getElementById('custom-task-input');
         const generatePromptBtn = document.getElementById('generate-prompt-btn');
         const btnEmoji = document.getElementById('btn-emoji');
+        const btnText = document.getElementById('btn-text'); // Référence au texte du bouton
         const promptOutput = document.getElementById('prompt-output');
         const promptLoading = document.getElementById('prompt-loading');
         const copyBtn = document.getElementById('copy-btn');
         const historyTrigger = document.getElementById('history-trigger');
         const historyPanel = document.getElementById('history-panel');
         const seeMoreTrigger = document.getElementById('see-more-trigger');
+        
         let selectedValue = "";
+        let promptGenerationCount = 0; // **NOUVEAU** : Compteur de session
+
         const options = [{
             value: "",
             text: "Sélectionnez une tâche..."
@@ -665,6 +669,14 @@
             const task = customTaskValue !== '' ? customTaskValue : selectedValue;
 
             if (task) {
+                // **NOUVEAU** : Logique de mise à jour du texte du bouton
+                promptGenerationCount++;
+                if (promptGenerationCount >= 10) {
+                    btnText.textContent = "Encore un autre prompt ?";
+                } else if (promptGenerationCount >= 1) {
+                    btnText.textContent = "Générer un autre prompt";
+                }
+
                 let customizationInstructions = "\n\nInstructions supplémentaires pour le prompt que tu génères :";
                 let hasCustomizations = false;
                 if (selectedTone) {
