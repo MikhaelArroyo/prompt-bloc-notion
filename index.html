@@ -76,9 +76,9 @@
            scrollbar-width: thin;
            scrollbar-color: #010132 transparent;
         }
-
+        
         body.history-open #history-arrow {
-            transform: rotate(-90deg);
+            transform: rotate(180deg);
         }
         
         #history-panel.history-expanded #see-more-arrow {
@@ -153,7 +153,8 @@
         }
         #lang-switcher button.active {
             color: #010132;
-            background-color: #e2e8f0; /* bg-slate-200 */
+            /* background-color: #e2e8f0; bg-slate-200 */
+            text-decoration: underline;
         }
 
         .loading-dots span { animation: blink 1.4s infinite both; }
@@ -190,7 +191,7 @@
                             <h2 data-i18n-key="title" class="text-3xl font-bold text-[#010132]">Découvrez des idées de prompts</h2>
                         </div>
                         <div class="flex-grow">
-                            <p data-i18n-key="intro_text" class="text-slate-600 mb-6">Sélectionnez une tâche pour obtenir un prompt adapté que vous pourriez utiliser avec un outil d'IA.</p>
+                            <p data-i18n-key="intro_text" class="text-slate-600 mb-4">Sélectionnez une tâche pour obtenir un prompt adapté que vous pourriez utiliser avec un outil d'IA.</p>
                             <div class="relative" id="custom-select-container">
                                 <div id="select-selected" class="w-full p-3 border border-slate-300 rounded-lg mb transition-all duration-300 flex justify-between items-center cursor-pointer">
                                     <span id="select-text" data-i18n-key="select_task">Sélectionnez une tâche...</span>
@@ -199,7 +200,7 @@
                                 <div id="select-options" class="hidden absolute top-full left-0 right-0 bg-white border border-t-0 border-slate-300 rounded-b-lg shadow-lg z-10 overflow-hidden"></div>
                             </div>
                             <p data-i18n-key="or_text" class="text-center text-slate-500 my-4">ou</p>
-                            <div class="relative mb-8 flex items-center">
+                            <div class="relative mb-4 flex items-center">
                                 <input type="text" id="custom-task-input" data-i18n-placeholder-key="custom_task_placeholder" placeholder="Entrez une tâche personnalisée ici..." class="w-full p-3 border border-slate-300 rounded-lg transition-all duration-300 focus:border-[#010132] focus:ring-1 focus:ring-[#010132]">
                                 <button id="inspire-me-btn" data-i18n-key="inspire_me" class="custom-btn text-sm px-3 flex-shrink-0 ml-6" style="padding-top: 0.875rem; padding-bottom: 0.875rem; font-weight: 600;">J'ai besoin d'inspiration</button>
                             </div>
@@ -246,9 +247,9 @@
                             </div>
                         </div>
                     </div>
-                        <div id="history-trigger" class="absolute top-8 -right-4 translate-x-full pl-4 cursor-pointer group">
+                        <div id="history-trigger" class="absolute top-4 -right-1 translate-x-full pl-4 cursor-pointer group">
                             <h3 data-i18n-key="history_title" class="text-lg font-bold text-slate-500 group-hover:text-[#010132] transition-colors whitespace-nowrap">
-                            Historique récent <span id="history-arrow" class="inline-block transition-transform duration-300">→</span>
+                            Historique <span id="history-arrow" class="inline-block transition-transform duration-300">►</span>
                             </h3>
                         </div>
                         <div id="history-panel" class="flex flex-col">
@@ -343,7 +344,7 @@
             select_task: "Select a task...",
             or_text: "or",
             custom_task_placeholder: "Enter a custom task here...",
-            inspire_me: "I need inspiration",
+            inspire_me: "Inspire me!",
             tone_label: "🎨 Tone",
             tone_professional: "Professional",
             tone_friendly: "Friendly",
