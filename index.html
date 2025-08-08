@@ -36,7 +36,7 @@
             left: calc(100% + 2rem); 
             width: 50%;
             opacity: 0;
-            transform: translateX(30px);
+            transform: translateX(-30px);
             pointer-events: none;
             transition: transform 0.5s ease-out, opacity 0.4s ease-out;
         }
@@ -81,8 +81,13 @@
             transform: rotate(180deg);
         }
         
-        #history-panel.history-expanded #see-more-arrow {
-            transform: rotate(180deg);
+        #history-panel.history-expanded #see-more-arrow .plus-icon {
+            opacity: 0;
+            transform: rotate(90deg);
+        }
+        #history-panel.history-expanded #see-more-arrow .minus-icon {
+            opacity: 1;
+            transform: rotate(0);
         }
         
         #prompt-loading {
@@ -170,7 +175,29 @@
 
         @media (max-width: 1023px) {
             #history-trigger { position: relative; top: auto; right: auto; transform: none; padding-left: 0; text-align: center; margin-top: 1.5rem; }
-            #history-panel { position: relative; left: 0; top: auto; width: 100%; margin-top: 1rem; }
+            #history-panel { 
+                position: relative; 
+                left: 0; 
+                top: auto; 
+                width: 100%; 
+                margin-top: 1rem;
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+                transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+                transform: translateY(-20px);
+            }
+            body.history-open #history-panel {
+                max-height: 100vh;
+                opacity: 1;
+                transform: translateY(0);
+            }
+            #history-arrow {
+                transform: rotate(90deg);
+            }
+            body.history-open #history-arrow {
+                transform: rotate(270deg);
+            }
             body.history-open #main-panel { transform: none; }
             #lang-switcher { justify-content: center; } /* Center language switcher on mobile */
         }
@@ -257,9 +284,12 @@
                             <div id="history-list" class="flex-grow space-y-2 max-h-[calc(80vh-8rem)] pr-2">
                             </div>
                             <div id="see-more-trigger" class="hidden cursor-pointer group pt-3 mt-3 border-t border-slate-200">
-                                <h3 class="text-md font-bold text-slate-500 group-hover:text-[#010132] transition-colors">
+                                <h3 class="text-md font-bold text-slate-500 group-hover:text-[#010132] transition-colors flex items-center">
                                     <span id="see-more-text" data-i18n-key="see_more">Voir plus</span>
-                                    <span id="see-more-arrow" class="inline-block align-middle transition-transform duration-300">+</span>
+                                    <span id="see-more-arrow" class="relative w-4 h-4 ml-2 text-lg">
+                                        <span class="plus-icon absolute inset-0 transition-all duration-300 ease-in-out opacity-100 transform rotate-0">+</span>
+                                        <span class="minus-icon absolute inset-0 transition-all duration-300 ease-in-out opacity-0 transform -rotate-90">-</span>
+                                    </span>
                                 </h3>
                             </div>
                             <div id="export-history-container" class="pt-3 mt-auto hidden">
