@@ -1,0 +1,21 @@
+{
+  "name": "Générateur d'Idées de Prompts - La Puce",
+  "short_name": "Idées Prompts",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#010132",
+  "description": "Une application pour aider les OBNL à générer des idées de prompts pour l'IA.",
+  "icons": [
+    {
+      "src": "https://lapuce.org/new/wp-content/uploads/2024/03/cropped-VersionImpression.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://lapuce.org/new/wp-content/uploads/2024/03/cropped-VersionImpression.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
