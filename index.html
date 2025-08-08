@@ -426,38 +426,29 @@
         * Affiche les prompts de l'historique sur la page, avec une limite d'affichage et un bouton "Voir plus".
         */
         function renderHistory() {
-    const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
-    const historyContainer = document.getElementById('prompt-history');
-    const historyList = document.getElementById('history-list');
-    const seeMoreBtn = document.getElementById('see-more-btn');
-    const promptOutput = document.getElementById('prompt-output');
-    const copyBtn = document.getElementById('copy-btn');
+        const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
+        const historyContainer = document.getElementById('prompt-history');
+        const historyList = document.getElementById('history-list');
+        const seeMoreBtn = document.getElementById('see-more-btn');
+        const promptOutput = document.getElementById('prompt-output');
+        const copyBtn = document.getElementById('copy-btn');
+    
+        historyList.innerHTML = ''; // Vide la liste actuelle pour la reconstruire.
 
-    historyList.innerHTML = ''; // Vide la liste actuelle pour la reconstruire.
-
-    if (history.length > 0) {
+        if (history.length > 0) {
         
-        // --- DÉBUT DE LA LOGIQUE D'ANIMATION ---
-        // Si l'animation n'a pas encore été jouée, on la déclenche.
-        if (!hasHistoryAnimated) {
-            historyContainer.classList.remove('opacity-0', '-translate-x-4', 'pointer-events-none');
-            historyContainer.classList.add('opacity-100', 'translate-x-0', 'pointer-events-auto');
-            hasHistoryAnimated = true; // On met le drapeau à vrai pour ne pas rejouer l'animation.
-        }
-        // --- FIN DE LA LOGIQUE D'ANIMATION ---
-
-        const itemsToShow = (isHistoryExpanded || history.length <= 6) ? history : history.slice(0, 6);
+            const itemsToShow = (isHistoryExpanded || history.length <= 6) ? history : history.slice(0, 6);
         
-        itemsToShow.forEach(promptText => {
-            const historyItem = document.createElement('div');
-            historyItem.className = 'p-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors text-sm text-slate-700';
-            historyItem.textContent = promptText.substring(0, 100) + (promptText.length > 100 ? '...' : '');
-            historyItem.addEventListener('click', () => {
-                promptOutput.innerHTML = parseMarkdown(promptText);
-                promptOutput.classList.remove('hidden');
-                copyBtn.classList.remove('hidden');
-                promptOutput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
+            itemsToShow.forEach(promptText => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'p-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors text-sm text-slate-700';
+                historyItem.textContent = promptText.substring(0, 100) + (promptText.length > 100 ? '...' : '');
+                historyItem.addEventListener('click', () => {
+                    promptOutput.innerHTML = parseMarkdown(promptText);
+                    promptOutput.classList.remove('hidden');
+                    copyBtn.classList.remove('hidden');
+                    promptOutput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
             historyList.appendChild(historyItem);
         });
 
