@@ -28,38 +28,51 @@
         #loading-text.is-fading {
             opacity: 0;
         }
-
+        
         #history-panel {
+            /* On positionne la liste par rapport à son parent, #main-panel */
             position: absolute;
-            /* Aligne le haut de la liste sous le texte "Historique récent" */
+            /* Aligne parfaitement la liste SOUS le texte du déclencheur */
             top: 4.5rem; 
-            /* Aligne la gauche de la liste avec la gauche du texte "Historique récent" */
+            /* Aligne la gauche de la liste à 1rem de la bordure droite du panneau principal */
             left: calc(100% + 2rem); 
-            width: 350px; /* On donne une largeur fixe à la liste */
-
+            width: 50%;
             /* État initial pour l'animation (caché) */
             opacity: 0;
             max-height: 0;
             overflow: hidden;
-
             /* Transition douce pour l'apparition */
-            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            transition: max-height 0.6s ease-in-out, opacity 0.5s ease-in-out;
         }
 
         /* On conserve le décalage du panneau principal */
         body.history-open #main-panel {
-            transform: translateX(-175px); /* On décale de la moitié de la largeur de la liste (350px / 2) */
+            transform: translateX(-150px);
         }
 
         /* État final pour l'animation (visible) */
         body.history-open #history-panel {
             opacity: 1;
-            max-height: 80vh; /* Se déploie jusqu'à une hauteur maximale */
+            max-height: 80vh;
         }
-    
+
         /* Animation de la flèche */
         body.history-open #history-arrow {
-            transform: rotate(90deg);
+            transform: rotate(-90deg);
+        }
+        
+        /* [NOUVEAU] Animation de la flèche pour "Voir plus" */
+        #history-panel.history-expanded #see-more-arrow {
+            transform: rotate(180deg);
+        }
+        
+        #prompt-loading {
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        #prompt-loading.is-visible {
+            opacity: 1;
         }
 
         /* --- Animation: Typewriter --- */
@@ -338,26 +351,26 @@
                                 <p id="loading-text" class="text-[#010132] font-semibold">Rédaction en cours...</p>
                             </div>
                         </div>
-
-                    </div> 
-                    
-                    <div id="history-trigger" class="absolute top-8 -right-4 translate-x-full pl-4 cursor-pointer group">
-                        <h3 class="text-lg font-bold text-slate-500 group-hover:text-[#010132] transition-colors whitespace-nowrap">
-                        Historique récent <span id="history-arrow" class="inline-block transition-transform duration-300">→</span>
-                        </h3>
                     </div>
+                        <div id="history-trigger" class="absolute top-8 -right-4 translate-x-full pl-4 cursor-pointer group">
+                            <h3 class="text-lg font-bold text-slate-500 group-hover:text-[#010132] transition-colors whitespace-nowrap">
+                            Historique récent <span id="history-arrow" class="inline-block transition-transform duration-300">→</span>
+                            </h3>
+                        </div>
+                        <div id="history-panel">
+                            <div id="history-list" class="space-y-2 max-h-[calc(100vh-12rem)] overflow-y-auto pr-2">
+                            </div>
+                            <div id="see-more-trigger" class="hidden cursor-pointer group pt-3 mt-3 border-t border-slate-200">
+                                <h3 class="text-md font-bold text-slate-500 group-hover:text-[#010132] transition-colors">
+                                    <span id="see-more-text">Voir plus</span>
+                                    <span id="see-more-arrow" class="inline-block align-middle transition-transform duration-300">↓</span>
+                                </h3>
+                            </div>
+                        </div>
                 </div>
-            </div>
-                <div id="history-panel">
-                    <div id="history-list" class="space-y-2 max-h-[calc(100vh-10rem)] overflow-y-auto pr-2">
-                    </div>
-                    <button id="see-more-btn" class="hidden w-full text-left p-2 mt-2 text-sm font-semibold text-[#010132] hover:underline">
-                        Voir plus ↓
-                    </button>
-                </div>
+            </div>      
         </div>
     </div>
-    
     <footer class="py-8">
         <div class="container mx-auto px-6 text-center">
             <a href="https://lapuce.org" target="_blank" rel="noopener noreferrer" class="inline-block">
@@ -367,78 +380,49 @@
     </footer>
 
     <script>
-        /**
-         * Parses a string for basic Markdown and converts it to HTML.
-         * @param {string} text - The text to parse.
-         * @returns {string} The HTML-formatted text.
-         */
-        function parseMarkdown(text) {
-            // Convert **bold** to <strong>bold</strong>
-            let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            // Convert [[placeholder]] to styled code tag
-            html = html.replace(/\[\[(.*?)\]\]/g, '<code class="bg-slate-200 text-red-600 font-mono py-1 px-2 rounded-md text-sm">[$1]</code>');
-            // Convert newlines to <br>
-            html = html.replace(/\n/g, '<br>');
-            return html;
-        }
+    /**
+     * Parses a string for basic Markdown and converts it to HTML.
+     * @param {string} text - The text to parse.
+     * @returns {string} The HTML-formatted text.
+     */
+    function parseMarkdown(text) {
+        let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\[\[(.*?)\]\]/g, '<code class="bg-slate-200 text-red-600 font-mono py-1 px-2 rounded-md text-sm">[$1]</code>');
+        html = html.replace(/\n/g, '<br>');
+        return html;
+    }
 
-        let loadingInterval;
-        let isHistoryExpanded = false;
-        let hasHistoryAnimated = false;
+    let loadingInterval;
+    let isHistoryExpanded = false;
 
-        const allLoadingMessages = [
-            "Assemblage des idées...",
-            "Préparation de la toile...",
-            "Mélange des couleurs...",
-            "Touche finale du pinceau...",
-            "Votre chef-d'œuvre arrive...",
-            "Démarrage des machines...",
-            "Calibration des circuits...",
-            "Compilation des données...",
-            "Optimisation de l'algorithme...",
-            "Génération du résultat...",
-            "Consultation de la boule de cristal...",
-            "Mélange des potions...",
-            "Invocation des esprits créatifs...",
-            "Saupoudrage de poussière d'étoiles...",
-            "La magie opère..."
-        ];
-        
-        /**
-        * Sauvegarde un prompt dans l'historique (localStorage) et le met à jour.
-        * @param {string} promptText - Le texte brut du prompt à sauvegarder.
-        */
-        function savePromptToHistory(promptText) {
-            // Récupère l'historique existant ou crée un tableau vide.
-            const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
+    const allLoadingMessages = [
+        "Assemblage des idées...", "Préparation de la toile...", "Mélange des couleurs...",
+        "Touche finale du pinceau...", "Votre chef-d'œuvre arrive...", "Démarrage des machines...",
+        "Calibration des circuits...", "Compilation des données...", "Optimisation de l'algorithme...",
+        "Génération du résultat...", "Consultation de la boule de cristal...", "Mélange des potions...",
+        "Invocation des esprits créatifs...", "Saupoudrage de poussière d'étoiles...", "La magie opère..."
+    ];
     
-            // Ajoute le nouveau prompt au début du tableau.
-        history.unshift(promptText);
-
-            // Limite l'historique aux 10 derniers prompts pour ne pas surcharger.
-        const limitedHistory = history.slice(0, 10);
-
-            // Sauvegarde le tableau mis à jour dans le localStorage.
-            localStorage.setItem('promptHistory', JSON.stringify(limitedHistory));
-        }
-
-        /**
-        * Affiche les prompts de l'historique sur la page, avec une limite d'affichage et un bouton "Voir plus".
-        */
-        function renderHistory() {
+    function savePromptToHistory(promptText) {
         const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
-        const historyContainer = document.getElementById('prompt-history');
+        history.unshift(promptText);
+        const limitedHistory = history.slice(0, 20);
+        localStorage.setItem('promptHistory', JSON.stringify(limitedHistory));
+    }
+
+    function renderHistory() {
+        const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
         const historyList = document.getElementById('history-list');
-        const seeMoreBtn = document.getElementById('see-more-btn');
+        const seeMoreTrigger = document.getElementById('see-more-trigger');
+        const seeMoreText = document.getElementById('see-more-text');
         const promptOutput = document.getElementById('prompt-output');
         const copyBtn = document.getElementById('copy-btn');
-    
-        historyList.innerHTML = ''; // Vide la liste actuelle pour la reconstruire.
+
+        historyList.innerHTML = ''; 
 
         if (history.length > 0) {
-        
             const itemsToShow = (isHistoryExpanded || history.length <= 6) ? history : history.slice(0, 6);
-        
+            
             itemsToShow.forEach(promptText => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'p-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors text-sm text-slate-700';
@@ -449,223 +433,208 @@
                     copyBtn.classList.remove('hidden');
                     promptOutput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 });
-            historyList.appendChild(historyItem);
-        });
-
-        if (history.length > 6) {
-            seeMoreBtn.classList.remove('hidden');
-            seeMoreBtn.textContent = isHistoryExpanded ? 'Voir moins ↑' : 'Voir plus ↓';
-        } else {
-            seeMoreBtn.classList.add('hidden');
-        }
-
-    }
-    // Note : il n'y a plus de 'else' pour cacher le conteneur, 
-    // car il est déjà invisible par défaut grâce à opacity-0.
-}
-        
-        /**
-         * Shuffles array in place.
-         * @param {Array} a items An array containing the items.
-         */
-        function shuffle(a) {
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
-            return a;
-        }
-
-
-        async function callGeminiAPI(prompt, outputElement, loadingElement, copyBtn) {
-            outputElement.innerHTML = '';
-            outputElement.classList.add('hidden');
-            copyBtn.classList.add('hidden');
-            loadingElement.classList.remove('hidden');
-
-            const loadingTextElement = document.getElementById('loading-text');
-            const shuffledMessages = shuffle([...allLoadingMessages]);
-
-            let messageIndex = 0;
-            loadingTextElement.textContent = shuffledMessages[messageIndex];
-
-            loadingInterval = setInterval(() => {
-                messageIndex = (messageIndex + 1) % shuffledMessages.length;
-                loadingTextElement.classList.add('is-fading');
-                setTimeout(() => {
-                    loadingTextElement.textContent = shuffledMessages[messageIndex];
-                    loadingTextElement.classList.remove('is-fading');
-                }, 500);
-            }, 2000);
-
-            const proxyApiUrl = "https://gemini-proxy-notion.michael-araujo.workers.dev/";
-
-            const payload = {
-                prompt: prompt,
-                model: 'gemini-2.0-flash-lite' 
-            };
-
-            try {
-                const response = await fetch(proxyApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                // Si la réponse n'est pas un succès (status autre que 2xx)
-                if (!response.ok) {
-                    if (response.status === 429) {
-                        // On crée une erreur personnalisée pour la reconnaître dans le 'catch'
-                        const rateLimitError = new Error("Rate limit exceeded");
-                        rateLimitError.isRateLimit = true; // On ajoute un marqueur
-                        throw rateLimitError;
-                    }
-                    // Pour toutes les autres erreurs serveur (500, 400, etc.)
-                    throw new Error(`Erreur du serveur: ${response.status}`);
-                }
-
-                const result = await response.json();
-                const text = result?.text;
-
-                if (text) {
-                    outputElement.innerHTML = parseMarkdown(text);
-                    outputElement.classList.remove('hidden');
-                    copyBtn.classList.remove('hidden');
-                    savePromptToHistory(text);
-                    renderHistory();
-                } else {
-                    throw new Error("Réponse invalide de l'API");
-                }
-            } catch (error) {
-                console.error(error);
-
-                if (error.isRateLimit) {
-                    outputElement.innerHTML = "Oups ! Trop de requêtes en même temps, veuillez patienter une minute.";
-                } else {
-                    // Message générique pour toutes les autres erreurs
-                    outputElement.innerHTML = "Désolé, une erreur est survenue. Veuillez réessayer.";
-                }
-                outputElement.classList.remove('hidden');
-
-            } finally {
-                // Ce bloc s'exécute toujours pour nettoyer l'interface
-                clearInterval(loadingInterval);
-                loadingElement.classList.add('hidden');
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const selectContainer = document.getElementById('custom-select-container');
-            const selectedDisplay = document.getElementById('select-selected');
-            const selectText = document.getElementById('select-text');
-            const selectArrow = document.getElementById('select-arrow');
-            const optionsContainer = document.getElementById('select-options');
-            const customTaskInput = document.getElementById('custom-task-input');
-
-            const generatePromptBtn = document.getElementById('generate-prompt-btn');
-            const btnEmoji = document.getElementById('btn-emoji');
-            const btnSpinner = document.getElementById('btn-spinner');
-            const promptOutput = document.getElementById('prompt-output');
-            const promptLoading = document.getElementById('prompt-loading');
-            const copyBtn = document.getElementById('copy-btn');
-            const seeMoreBtn = document.getElementById('see-more-btn');
-
-            let selectedValue = "";
-
-            const options = [
-                { value: "", text: "Sélectionnez une tâche..." },
-                { value: "rédiger un courriel de remerciement pour un bénévole", text: "Rédiger un courriel de remerciement" },
-                { value: "résumer un rapport financier annuel", text: "Résumer un rapport financier" },
-                { value: "créer un plan de communication pour un événement", text: "Créer un plan de communication" },
-                { value: "brainstormer des idées de levée de fonds", text: "Brainstormer des idées de levée de fonds" },
-                { value: "créer une publication pour les réseaux sociaux pour annoncer un événement", text: "Créer une publication pour les réseaux sociaux" },
-                { value: "rédiger une demande de subvention", text: "Rédiger une demande de subvention" },
-                { value: "créer un sondage de satisfaction pour les bénévoles", text: "Sondage de satisfaction pour les bénévoles" }
-            ];
-
-            // Populate options
-            options.forEach(option => {
-                const optionEl = document.createElement('div');
-                optionEl.textContent = option.text;
-                optionEl.dataset.value = option.value;
-                optionEl.classList.add('p-3', 'cursor-pointer', 'hover:bg-slate-100');
-                if (option.value === "") {
-                    optionEl.classList.add('text-slate-500');
-                }
-                optionEl.addEventListener('click', () => {
-                    selectText.textContent = option.text;
-                    selectedValue = option.value;
-                    customTaskInput.value = ""; // Clear custom input
-                    closeSelect();
-                    updateUIState();
-                });
-                optionsContainer.appendChild(optionEl);
+                historyList.appendChild(historyItem);
             });
 
-            customTaskInput.addEventListener('input', () => {
-                if (customTaskInput.value.trim() !== '') {
-                    selectedValue = "";
-                    selectText.textContent = "Sélectionnez une tâche...";
+            if (history.length > 6) {
+                seeMoreTrigger.classList.remove('hidden');
+                seeMoreText.textContent = isHistoryExpanded ? 'Voir moins' : 'Voir plus';
+            } else {
+                seeMoreTrigger.classList.add('hidden');
+            }
+        }
+    }
+    
+    function shuffle(a) {
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    async function callGeminiAPI(prompt, outputElement, loadingElement, copyBtn) {
+        // --- 1. Préparer l'interface pour le chargement ---
+        outputElement.innerHTML = '';
+        outputElement.classList.add('hidden');
+        copyBtn.classList.add('hidden');
+
+        // Apparition en douceur de l'animation
+        loadingElement.classList.remove('hidden');
+        setTimeout(() => loadingElement.classList.add('is-visible'), 10);
+
+        const loadingTextElement = document.getElementById('loading-text');
+        const shuffledMessages = shuffle([...allLoadingMessages]);
+        let messageIndex = 0;
+        loadingTextElement.textContent = shuffledMessages[messageIndex];
+        
+        loadingInterval = setInterval(() => {
+            messageIndex = (messageIndex + 1) % shuffledMessages.length;
+            loadingTextElement.classList.add('is-fading');
+            setTimeout(() => {
+                loadingTextElement.textContent = shuffledMessages[messageIndex];
+                loadingTextElement.classList.remove('is-fading');
+            }, 500);
+        }, 2000);
+
+        // --- 2. Lancer l'appel API ---
+        const proxyApiUrl = "https://gemini-proxy-notion.michael-araujo.workers.dev/";
+        const payload = { prompt: prompt, model: 'gemini-2.0-flash-lite' };
+
+        try {
+            const response = await fetch(proxyApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                if (response.status === 429) {
+                    const rateLimitError = new Error("Rate limit exceeded");
+                    rateLimitError.isRateLimit = true;
+                    throw rateLimitError;
                 }
+                throw new Error(`Erreur du serveur: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const text = result?.text;
+
+            // --- 3a. Gérer la réponse en cas de SUCCÈS ---
+            if (text) {
+                outputElement.innerHTML = parseMarkdown(text);
+                outputElement.classList.remove('hidden');
+                copyBtn.classList.remove('hidden');
+                savePromptToHistory(text);
+                renderHistory();
+            } else {
+                throw new Error("Réponse invalide de l'API");
+            }
+
+        } catch (error) {
+            // --- 3b. Gérer la réponse en cas d'ERREUR ---
+            console.error(error);
+            if (error.isRateLimit) {
+                outputElement.innerHTML = "Oups ! Trop de requêtes en même temps, veuillez patienter une minute.";
+            } else {
+                outputElement.innerHTML = "Désolé, une erreur est survenue. Veuillez réessayer.";
+            }
+            outputElement.classList.remove('hidden');
+
+        } finally {
+            // --- 4. TOUJOURS nettoyer l'interface à la fin ---
+            clearInterval(loadingInterval);
+            
+            // Disparition en douceur de l'animation
+            loadingElement.classList.remove('is-visible');
+            setTimeout(() => {
+                loadingElement.classList.add('hidden');
+            }, 400); // Doit correspondre à la durée de la transition CSS
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectContainer = document.getElementById('custom-select-container');
+        const selectedDisplay = document.getElementById('select-selected');
+        const selectText = document.getElementById('select-text');
+        const selectArrow = document.getElementById('select-arrow');
+        const optionsContainer = document.getElementById('select-options');
+        const customTaskInput = document.getElementById('custom-task-input');
+        const generatePromptBtn = document.getElementById('generate-prompt-btn');
+        const btnEmoji = document.getElementById('btn-emoji');
+        const promptOutput = document.getElementById('prompt-output');
+        const promptLoading = document.getElementById('prompt-loading');
+        const copyBtn = document.getElementById('copy-btn');
+        const historyTrigger = document.getElementById('history-trigger');
+        const historyPanel = document.getElementById('history-panel');
+        const seeMoreTrigger = document.getElementById('see-more-trigger');
+
+        let selectedValue = "";
+
+        const options = [
+            { value: "", text: "Sélectionnez une tâche..." },
+            { value: "rédiger un courriel de remerciement pour un bénévole", text: "Rédiger un courriel de remerciement" },
+            { value: "résumer un rapport financier annuel", text: "Résumer un rapport financier" },
+            { value: "créer un plan de communication pour un événement", text: "Créer un plan de communication" },
+            { value: "brainstormer des idées de levée de fonds", text: "Brainstormer des idées de levée de fonds" },
+            { value: "créer une publication pour les réseaux sociaux pour annoncer un événement", text: "Créer une publication pour les réseaux sociaux" },
+            { value: "rédiger une demande de subvention", text: "Rédiger une demande de subvention" },
+            { value: "créer un sondage de satisfaction pour les bénévoles", text: "Sondage de satisfaction pour les bénévoles" }
+        ];
+
+        options.forEach(option => {
+            const optionEl = document.createElement('div');
+            optionEl.textContent = option.text;
+            optionEl.dataset.value = option.value;
+            optionEl.classList.add('p-3', 'cursor-pointer', 'hover:bg-slate-100');
+            if (option.value === "") {
+                optionEl.classList.add('text-slate-500');
+            }
+            optionEl.addEventListener('click', () => {
+                selectText.textContent = option.text;
+                selectedValue = option.value;
+                customTaskInput.value = "";
+                closeSelect();
                 updateUIState();
             });
+            optionsContainer.appendChild(optionEl);
+        });
 
-            function closeSelect() {
-                optionsContainer.classList.add('hidden');
-                selectArrow.classList.remove('select-arrow-up');
+        customTaskInput.addEventListener('input', () => {
+            if (customTaskInput.value.trim() !== '') {
+                selectedValue = "";
+                selectText.textContent = "Sélectionnez une tâche...";
+            }
+            updateUIState();
+        });
+
+        function closeSelect() {
+            optionsContainer.classList.add('hidden');
+            selectArrow.classList.remove('select-arrow-up');
+        }
+
+        selectedDisplay.addEventListener('click', (e) => {
+            e.stopPropagation();
+            optionsContainer.classList.toggle('hidden');
+            selectArrow.classList.toggle('select-arrow-up');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (!selectContainer.contains(e.target)) {
+                closeSelect();
+            }
+        });
+
+        function updateUIState() {
+            const isTaskSelected = selectedValue !== '';
+            const isCustomTaskEntered = customTaskInput.value.trim() !== '';
+            generatePromptBtn.disabled = !isTaskSelected && !isCustomTaskEntered;
+
+            if (isTaskSelected || isCustomTaskEntered) {
+                btnEmoji.classList.remove('hidden');
+            } else {
+                btnEmoji.classList.add('hidden');
             }
 
-            selectedDisplay.addEventListener('click', (e) => {
-                e.stopPropagation();
-                optionsContainer.classList.toggle('hidden');
-                selectArrow.classList.toggle('select-arrow-up');
-            });
-
-            window.addEventListener('click', (e) => {
-                if (!selectContainer.contains(e.target)) {
-                    closeSelect();
-                }
-            });
-
-            function updateUIState() {
-                const isTaskSelected = selectedValue !== '';
-                const isCustomTaskEntered = customTaskInput.value.trim() !== '';
-
-                generatePromptBtn.disabled = !isTaskSelected && !isCustomTaskEntered;
-
-                // --- CORRECTED LOGIC ---
-                if (isTaskSelected || isCustomTaskEntered) {
-                    // When a task is ready, show the emoji.
-                    btnEmoji.classList.remove('hidden');
-                } else {
-                    // When no task is selected, hide the emoji.
-                    btnEmoji.classList.add('hidden');
-                }
-                // --- END CORRECTION ---
-
-                if (isTaskSelected) {
-                    selectedDisplay.classList.remove('border-slate-300');
-                    selectedDisplay.classList.add('border-[#010132]', 'border-2');
-                } else {
-                    selectedDisplay.classList.remove('border-[#010132]', 'border-2');
-                    selectedDisplay.classList.add('border-slate-300');
-                }
-
-                if (isCustomTaskEntered) {
-                    customTaskInput.classList.remove('border-slate-300');
-                    customTaskInput.classList.add('border-[#010132]', 'border-2');
-                } else {
-                    customTaskInput.classList.remove('border-[#010132]', 'border-2');
-                    customTaskInput.classList.add('border-slate-300');
-                }
+            if (isTaskSelected) {
+                selectedDisplay.classList.add('border-[#010132]', 'border-2');
+            } else {
+                selectedDisplay.classList.remove('border-[#010132]', 'border-2');
             }
 
-            generatePromptBtn.addEventListener('click', () => {
-                const customTaskValue = customTaskInput.value.trim();
-                const task = customTaskValue !== '' ? customTaskValue : selectedValue;
+            if (isCustomTaskEntered) {
+                customTaskInput.classList.add('border-[#010132]', 'border-2');
+            } else {
+                customTaskInput.classList.remove('border-[#010132]', 'border-2');
+            }
+        }
 
-                if (task) {
-                    const prompt = `Ta réponse doit commencer par une phrase d'introduction amicale et contextuelle qui varie à chaque fois. Par exemple : "Voici un prompt que vous pourriez utiliser avec votre agent conversationnel préféré pour la tâche suivante :" ou "Pour vous aider avec la tâche suivante, voici une suggestion de prompt :".
+        generatePromptBtn.addEventListener('click', () => {
+            const customTaskValue = customTaskInput.value.trim();
+            const task = customTaskValue !== '' ? customTaskValue : selectedValue;
+
+            if (task) {
+                const prompt = `Ta réponse doit commencer par une phrase d'introduction amicale et contextuelle qui varie à chaque fois. Par exemple : "Voici un prompt que vous pourriez utiliser avec votre agent conversationnel préféré pour la tâche suivante :" ou "Pour vous aider avec la tâche suivante, voici une suggestion de prompt :".
 
 Ensuite, rédige un prompt pour la tâche : "${task}".
 
@@ -674,49 +643,41 @@ Ce prompt doit être adapté au contexte d'un organisme communautaire (OBNL).
 Instructions de formatage pour le prompt que tu génères :
 1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).
 2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].`;
-                    callGeminiAPI(prompt, promptOutput, promptLoading, copyBtn);
-                }
+                callGeminiAPI(prompt, promptOutput, promptLoading, copyBtn);
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const promptText = promptOutput.innerText;
+            navigator.clipboard.writeText(promptText).then(() => {
+                const originalClasses = ['bg-slate-200', 'hover:bg-slate-300', 'text-slate-600'];
+                const successClasses = ['bg-[#49b048]', 'text-white'];
+                copyBtn.classList.remove(...originalClasses);
+                copyBtn.classList.add(...successClasses);
+                copyBtn.textContent = 'Copié !';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copier le prompt';
+                    copyBtn.classList.remove(...successClasses);
+                    copyBtn.classList.add(...originalClasses);
+                }, 2000);
+            }, (err) => {
+                console.error('Could not copy text: ', err);
+                copyBtn.textContent = 'Erreur';
             });
+        });
+        
+        historyTrigger.addEventListener('click', () => {
+            document.body.classList.toggle('history-open');
+        });
 
-            copyBtn.addEventListener('click', () => {
-                const promptText = promptOutput.innerText;
-                navigator.clipboard.writeText(promptText).then(() => {
-                    // Sauvegarde des classes de style pour les restaurer plus tard
-                    const originalClasses = ['bg-slate-200', 'hover:bg-slate-300', 'text-slate-600'];
-                    const successClasses = ['bg-[#49b048]', 'text-white'];
-
-                    // Changement de style pour la confirmation
-                    copyBtn.classList.remove(...originalClasses);
-                    copyBtn.classList.add(...successClasses);
-                    copyBtn.textContent = 'Copié !';
-
-                    // Restauration de l'état initial après 2 secondes
-                    setTimeout(() => {
-                        copyBtn.textContent = 'Copier le prompt';
-                        copyBtn.classList.remove(...successClasses);
-                        copyBtn.classList.add(...originalClasses);
-                    }, 2000);
-                }, (err) => {
-                    console.error('Could not copy text: ', err);
-                    copyBtn.textContent = 'Erreur';
-                });
-            });
-            
-            const historyTrigger = document.getElementById('history-trigger');
-
-            // On écoute le clic sur le titre "Historique récent"
-            historyTrigger.addEventListener('click', () => {
-                // On bascule simplement une classe sur le body. Le CSS fait le reste.
-                document.body.classList.toggle('history-open');
-            });
-
-            seeMoreBtn.addEventListener('click', () => {
-                isHistoryExpanded = !isHistoryExpanded;
-                renderHistory();
-            });
-
-            updateUIState();
+        seeMoreTrigger.addEventListener('click', () => {
+            isHistoryExpanded = !isHistoryExpanded;
+            historyPanel.classList.toggle('history-expanded');
             renderHistory();
+        });
+
+        updateUIState();
+        renderHistory();
         });
     </script>
 </body>
