@@ -261,6 +261,16 @@
             81% {
                 box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 12px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
             }
+            body.history-open #main-panel {
+            /* Décale le panneau principal vers la gauche de la moitié de la largeur du panneau d'historique (1/3 de la page / 2 = 16.66%) */
+                transform: translateX(-16.66vw);
+            }
+
+            body.history-open #history-panel {
+                /* Fait apparaître le panneau d'historique */
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -268,62 +278,54 @@
 
     <div class="flex-grow">
         <div class="container mx-auto px-6 py-12">
-            <div class="flex flex-col md:flex-row gap-8 items-start">
-                <div class="w-full md:w-2/3 relative z-10">
+            <div class="relative">
+
+                <div id="main-panel" class="md:w-2/3 mx-auto relative transition-transform duration-700 ease-in-out">
                     <div class="bg-white p-8 rounded-2xl shadow-lg flex flex-col">
                         <h2 class="text-3xl font-bold text-[#010132] text-center mb-8">Découvrez des idées de prompts</h2>
                         <div class="flex-grow">
-                            <p class="text-slate-600 mb-8">Sélectionnez une tâche pour obtenir un prompt adapté que vous pourriez utiliser avec un outil d'IA.</p>
-                            <div class="relative" id="custom-select-container">
-                                <div id="select-selected" class="w-full p-3 border border-slate-300 rounded-lg mb transition-all duration-300 flex justify-between items-center cursor-pointer">
-                                    <span id="select-text">Sélectionnez une tâche...</span>
-                                    <svg id="select-arrow" class="select-arrow w-5 h-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div id="select-options" class="hidden absolute top-full left-0 right-0 bg-white border border-t-0 border-slate-300 rounded-b-lg shadow-lg z-10 overflow-hidden">
-                                </div>
+                            <p class="text-slate-600 mb-6">Sélectionnez une tâche pour obtenir un prompt adapté que vous pourriez utiliser avec un outil d'IA.</p>
+                            <div id="select-selected" class="w-full p-3 border border-slate-300 rounded-lg mb transition-all duration-300 flex justify-between items-center cursor-pointer">
+                                <span id="select-text">Sélectionnez une tâche...</span>
+                                <svg id="select-arrow" class="select-arrow w-5 h-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                             </div>
-                            <p class="text-center text-slate-500 my-4">ou</p>
-                            <div class="relative mb-8">
-                                <input type="text" id="custom-task-input" placeholder="Entrez une tâche personnalisée ici..." class="w-full p-3 border border-slate-300 rounded-lg transition-all duration-300 focus:border-[#010132] focus:ring-1 focus:ring-[#010132]">
-                            </div>
+                            <div id="select-options" class="hidden absolute top-full left-0 right-0 bg-white border border-t-0 border-slate-300 rounded-b-lg shadow-lg z-10 overflow-hidden"></div>
                         </div>
-                        <div>
-                            <button id="generate-prompt-btn" class="w-full bg-[#49b048] hover:bg-[#3f993e] text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-slate-400 flex items-center   justify-center" disabled>
-                                <span id="btn-text">Générer un prompt</span>
-                                <span id="btn-emoji" class="hidden ml-2"> ✨</span>
-                                <svg id="btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </button>
-                            <div id="prompt-output" class="mt-8 p-4 bg-slate-100 rounded-lg text-slate-800 hidden"></div>
-                            <button id="copy-btn" class="mt-8 w-full bg-slate-200 hover:bg-slate-300 text-slate-600 font-bold py-3 px-4 rounded-lg hidden">Copier le prompt</button>
-                            <div id="prompt-loading" class="mt-8 text-center hidden">
-                                <div class="flex justify-center items-center py-8">
-                                    <div class="typewriter-loader">
-                                        <div class="slide"><i></i></div>
-                                        <div class="paper"></div>
-                                        <div class="keyboard"></div>
-                                    </div>
-                                </div>
-                                <p id="loading-text" class="text-[#010132] font-semibold">Rédaction en cours...</p>
-                            </div>
+                        <p class="text-center text-slate-500 my-4">ou</p>
+                        <div class="relative mb-6">
+                            <input type="text" id="custom-task-input" placeholder="Entrez une tâche personnalisée ici..." class="w-full p-3 border border-slate-300 rounded-lg transition-all duration-300 focus:border-[#010132] focus:ring-1 focus:ring-[#010132]">
                         </div>
+                        <button id="generate-prompt-btn" class="w-full bg-[#49b048] hover:bg-[#3f993e] text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-slate-400 flex items-center justify-center" disabled="">
+                            <span id="btn-text">Générer un prompt</span>
+                            <span id="btn-emoji" class="hidden ml-2"> ✨</span>
+                            <svg id="btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </button>
+                        <div id="prompt-output" class="mt-8 p-4 bg-slate-100 rounded-lg text-slate-800 hidden"></div>
+                        <button id="copy-btn" class="mt-4 w-full bg-slate-200 hover:bg-slate-300 text-slate-600 font-bold py-3 px-4 rounded-lg hidden">Copier le prompt</button>
+                        <div id="prompt-loading" class="mt-8 text-center hidden">
+                        </div>
+                    </div>
+
+                    <div id="history-trigger" class="absolute top-8 -right-4 translate-x-full pl-4 cursor-pointer group">
+                        <h3 class="text-lg font-bold text-slate-500 group-hover:text-[#010132] transition-colors whitespace-nowrap">
+                            Historique récent <span class="group-hover:ml-2 transition-all">→</span>
+                        </h3>
                     </div>
                 </div>
 
-                <div class="w-full md:w-1/3">
-                    <div id="prompt-history" class="md:block sticky top-12 opacity-0 -translate-x-4 pointer-events-none transition-all duration-700 ease-out">
-                        <h3 class="text-xl font-bold text-[#010132] mb-4">Historique récent</h3>
+            </div>
+
+            <div id="history-panel" class="fixed top-0 right-0 h-full md:w-1/3 bg-slate-50 p-6 pt-12 shadow-2xl transform translate-x-full transition-transform duration-700 ease-in-out opacity-0">
+                <div id="prompt-history">
+                    <div id="history-content" class="transition-opacity duration-500">
+                         <h3 class="text-xl font-bold text-[#010132] mb-4">Historique récent</h3>
                         <div id="history-list" class="space-y-2 max-h-[calc(100vh-10rem)] overflow-y-auto pr-2">
                         </div>
                         <button id="see-more-btn" class="hidden w-full text-center p-2 mt-2 text-sm font-semibold text-[#010132] hover:underline">
                             Voir plus ↓
                         </button>
                     </div>
-                </div> 
+                </div>
             </div>
         </div>
     </div
@@ -396,50 +398,52 @@
         * Affiche les prompts de l'historique sur la page, avec une limite d'affichage et un bouton "Voir plus".
         */
         function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
-            const historyContainer = document.getElementById('prompt-history');
-            const historyList = document.getElementById('history-list');
-            const seeMoreBtn = document.getElementById('see-more-btn');
-            const promptOutput = document.getElementById('prompt-output');
-            const copyBtn = document.getElementById('copy-btn');
+    const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
+    const historyContainer = document.getElementById('prompt-history');
+    const historyList = document.getElementById('history-list');
+    const seeMoreBtn = document.getElementById('see-more-btn');
+    const promptOutput = document.getElementById('prompt-output');
+    const copyBtn = document.getElementById('copy-btn');
+
+    historyList.innerHTML = ''; // Vide la liste actuelle pour la reconstruire.
+
+    if (history.length > 0) {
         
-            historyList.innerHTML = ''; // Vide la liste actuelle pour la reconstruire.
-        
-            if (history.length > 0) {
-                
-                // --- DÉBUT DE LA LOGIQUE D'ANIMATION ---
-                // Si l'animation n'a pas encore été jouée, on la déclenche.
-                if (!hasHistoryAnimated) {
-                    historyContainer.classList.remove('opacity-0', '-translate-x-4', 'pointer-events-none');
-                    historyContainer.classList.add('opacity-100', 'translate-x-0', 'pointer-events-auto');
-                    hasHistoryAnimated = true; // On met le drapeau à vrai pour ne pas rejouer l'animation.
-                }
-                // --- FIN DE LA LOGIQUE D'ANIMATION ---
-        
-                const itemsToShow = (isHistoryExpanded || history.length <= 6) ? history : history.slice(0, 6);
-                
-                itemsToShow.forEach(promptText => {
-                    const historyItem = document.createElement('div');
-                    historyItem.className = 'p-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors text-sm text-slate-700';
-                    historyItem.textContent = promptText.substring(0, 100) + (promptText.length > 100 ? '...' : '');
-                    historyItem.addEventListener('click', () => {
-                        promptOutput.innerHTML = parseMarkdown(promptText);
-                        promptOutput.classList.remove('hidden');
-                        copyBtn.classList.remove('hidden');
-                        promptOutput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    });
-                    historyList.appendChild(historyItem);
-                });
-        
-                if (history.length > 6) {
-                    seeMoreBtn.classList.remove('hidden');
-                    seeMoreBtn.textContent = isHistoryExpanded ? 'Voir moins ↑' : 'Voir plus ↓';
-                } else {
-                    seeMoreBtn.classList.add('hidden');
-                }
-        
-            }
+        // --- DÉBUT DE LA LOGIQUE D'ANIMATION ---
+        // Si l'animation n'a pas encore été jouée, on la déclenche.
+        if (!hasHistoryAnimated) {
+            historyContainer.classList.remove('opacity-0', '-translate-x-4', 'pointer-events-none');
+            historyContainer.classList.add('opacity-100', 'translate-x-0', 'pointer-events-auto');
+            hasHistoryAnimated = true; // On met le drapeau à vrai pour ne pas rejouer l'animation.
         }
+        // --- FIN DE LA LOGIQUE D'ANIMATION ---
+
+        const itemsToShow = (isHistoryExpanded || history.length <= 6) ? history : history.slice(0, 6);
+        
+        itemsToShow.forEach(promptText => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'p-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors text-sm text-slate-700';
+            historyItem.textContent = promptText.substring(0, 100) + (promptText.length > 100 ? '...' : '');
+            historyItem.addEventListener('click', () => {
+                promptOutput.innerHTML = parseMarkdown(promptText);
+                promptOutput.classList.remove('hidden');
+                copyBtn.classList.remove('hidden');
+                promptOutput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+            historyList.appendChild(historyItem);
+        });
+
+        if (history.length > 6) {
+            seeMoreBtn.classList.remove('hidden');
+            seeMoreBtn.textContent = isHistoryExpanded ? 'Voir moins ↑' : 'Voir plus ↓';
+        } else {
+            seeMoreBtn.classList.add('hidden');
+        }
+
+    }
+    // Note : il n'y a plus de 'else' pour cacher le conteneur, 
+    // car il est déjà invisible par défaut grâce à opacity-0.
+}
         
         /**
          * Shuffles array in place.
@@ -679,13 +683,21 @@ Instructions de formatage pour le prompt que tu génères :
                 });
             });
             
+            const historyTrigger = document.getElementById('history-trigger');
+
+            // On écoute le clic sur le titre "Historique récent"
+            historyTrigger.addEventListener('click', () => {
+                // On bascule simplement une classe sur le body. Le CSS fait le reste.
+                document.body.classList.toggle('history-open');
+            });
+
             seeMoreBtn.addEventListener('click', () => {
-                isHistoryExpanded = !isHistoryExpanded; // Bascule l'état
-                renderHistory(); // Met à jour l'affichage de l'historique
+                isHistoryExpanded = !isHistoryExpanded;
+                renderHistory();
             });
 
             updateUIState();
-            renderHistory(); // Affiche l'historique au chargement initial.
+            renderHistory();
         });
     </script>
 </body>
