@@ -200,6 +200,24 @@
             -webkit-animation: keyboard05 var(--duration) linear infinite;
             animation: keyboard05 var(--duration) linear infinite;
         }
+        
+        .custom-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #cbd5e1; /* border-slate-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            background-color: transparent;
+            font-weight: 600; /* semibold */
+            color: #475569; /* text-slate-600 */
+            transition: all 0.2s ease-in-out;
+        }
+        .custom-btn:hover {
+            background-color: #f1f5f9; /* bg-slate-100 */
+        }
+        .custom-btn.active {
+            background-color: #010132;
+            color: white;
+            border-color: #010132;
+        }
 
         @keyframes bounce05 {
             85%, 92%, 100% {
@@ -331,7 +349,25 @@
                                 <input type="text" id="custom-task-input" placeholder="Entrez une tâche personnalisée ici..." class="w-full p-3 border border-slate-300 rounded-lg transition-all duration-300 focus:border-[#010132] focus:ring-1 focus:ring-[#010132]">
                             </div>
                         </div>
-
+                        <div id="customization-options" class="space-y-6 mb-8">
+                            <div>
+                                <label class="block text-slate-700 font-bold mb-2">🎨 Ton</label>
+                                <div id="tone-options" class="flex flex-wrap gap-2">
+                                    <button data-value="Professionnel" class="custom-btn">Professionnel</button>
+                                    <button data-value="Amical" class="custom-btn">Amical</button>
+                                    <button data-value="Créatif" class="custom-btn">Créatif</button>
+                                    <button data-value="Urgent" class="custom-btn">Urgent</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 font-bold mb-2">📊 Niveau de détail</label>
+                                <div id="detail-options" class="flex flex-wrap gap-2">
+                                    <button data-value="Concise" class="custom-btn">Concise</button>
+                                    <button data-value="Standard" class="custom-btn active">Standard</button>
+                                    <button data-value="Très détaillé" class="custom-btn">Très détaillé</button>
+                                </div>
+                            </div>
+                        </div>
                         <div>
                             <button id="generate-prompt-btn" class="w-full bg-[#49b048] hover:bg-[#3f993e] text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-slate-400 flex items-center justify-center" disabled>
                                 <span id="btn-text">Générer un prompt</span>
@@ -379,37 +415,22 @@
         </div>
     </footer>
 
-    <script>
-    /**
-     * Parses a string for basic Markdown and converts it to HTML.
-     * @param {string} text - The text to parse.
-     * @returns {string} The HTML-formatted text.
-     */
+<script>
     function parseMarkdown(text) {
         let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\[\[(.*?)\]\]/g, '<code class="bg-slate-200 text-red-600 font-mono py-1 px-2 rounded-md text-sm">[$1]</code>');
         html = html.replace(/\n/g, '<br>');
         return html;
     }
-
     let loadingInterval;
     let isHistoryExpanded = false;
-
-    const allLoadingMessages = [
-        "Assemblage des idées...", "Préparation de la toile...", "Mélange des couleurs...",
-        "Touche finale du pinceau...", "Votre chef-d'œuvre arrive...", "Démarrage des machines...",
-        "Calibration des circuits...", "Compilation des données...", "Optimisation de l'algorithme...",
-        "Génération du résultat...", "Consultation de la boule de cristal...", "Mélange des potions...",
-        "Invocation des esprits créatifs...", "Saupoudrage de poussière d'étoiles...", "La magie opère..."
-    ];
-    
+    const allLoadingMessages = ["Assemblage des idées...", "Préparation de la toile...", "Mélange des couleurs...", "Touche finale du pinceau...", "Votre chef-d'œuvre arrive...", "Démarrage des machines...", "Calibration des circuits...", "Compilation des données...", "Optimisation de l'algorithme...", "Génération du résultat...", "Consultation de la boule de cristal...", "Mélange des potions...", "Invocation des esprits créatifs...", "Saupoudrage de poussière d'étoiles...", "La magie opère..."];
     function savePromptToHistory(promptText) {
         const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
         history.unshift(promptText);
         const limitedHistory = history.slice(0, 20);
         localStorage.setItem('promptHistory', JSON.stringify(limitedHistory));
     }
-
     function renderHistory() {
         const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
         const historyList = document.getElementById('history-list');
@@ -417,12 +438,9 @@
         const seeMoreText = document.getElementById('see-more-text');
         const promptOutput = document.getElementById('prompt-output');
         const copyBtn = document.getElementById('copy-btn');
-
-        historyList.innerHTML = ''; 
-
+        historyList.innerHTML = '';
         if (history.length > 0) {
             const itemsToShow = (isHistoryExpanded || history.length <= 6) ? history : history.slice(0, 6);
-            
             itemsToShow.forEach(promptText => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'p-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors text-sm text-slate-700';
@@ -431,11 +449,13 @@
                     promptOutput.innerHTML = parseMarkdown(promptText);
                     promptOutput.classList.remove('hidden');
                     copyBtn.classList.remove('hidden');
-                    promptOutput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    promptOutput.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
                 });
                 historyList.appendChild(historyItem);
             });
-
             if (history.length > 6) {
                 seeMoreTrigger.classList.remove('hidden');
                 seeMoreText.textContent = isHistoryExpanded ? 'Voir moins' : 'Voir plus';
@@ -444,7 +464,6 @@
             }
         }
     }
-    
     function shuffle(a) {
         for (let i = a.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -452,22 +471,16 @@
         }
         return a;
     }
-
     async function callGeminiAPI(prompt, outputElement, loadingElement, copyBtn) {
-        // --- 1. Préparer l'interface pour le chargement ---
         outputElement.innerHTML = '';
         outputElement.classList.add('hidden');
         copyBtn.classList.add('hidden');
-
-        // Apparition en douceur de l'animation
         loadingElement.classList.remove('hidden');
         setTimeout(() => loadingElement.classList.add('is-visible'), 10);
-
         const loadingTextElement = document.getElementById('loading-text');
         const shuffledMessages = shuffle([...allLoadingMessages]);
         let messageIndex = 0;
         loadingTextElement.textContent = shuffledMessages[messageIndex];
-        
         loadingInterval = setInterval(() => {
             messageIndex = (messageIndex + 1) % shuffledMessages.length;
             loadingTextElement.classList.add('is-fading');
@@ -476,18 +489,19 @@
                 loadingTextElement.classList.remove('is-fading');
             }, 500);
         }, 2000);
-
-        // --- 2. Lancer l'appel API ---
         const proxyApiUrl = "https://gemini-proxy-notion.michael-araujo.workers.dev/";
-        const payload = { prompt: prompt, model: 'gemini-2.0-flash-lite' };
-
+        const payload = {
+            prompt: prompt,
+            model: 'gemini-2.0-flash-lite'
+        };
         try {
             const response = await fetch(proxyApiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(payload)
             });
-
             if (!response.ok) {
                 if (response.status === 429) {
                     const rateLimitError = new Error("Rate limit exceeded");
@@ -496,11 +510,8 @@
                 }
                 throw new Error(`Erreur du serveur: ${response.status}`);
             }
-
             const result = await response.json();
             const text = result?.text;
-
-            // --- 3a. Gérer la réponse en cas de SUCCÈS ---
             if (text) {
                 outputElement.innerHTML = parseMarkdown(text);
                 outputElement.classList.remove('hidden');
@@ -510,9 +521,7 @@
             } else {
                 throw new Error("Réponse invalide de l'API");
             }
-
         } catch (error) {
-            // --- 3b. Gérer la réponse en cas d'ERREUR ---
             console.error(error);
             if (error.isRateLimit) {
                 outputElement.innerHTML = "Oups ! Trop de requêtes en même temps, veuillez patienter une minute.";
@@ -520,19 +529,14 @@
                 outputElement.innerHTML = "Désolé, une erreur est survenue. Veuillez réessayer.";
             }
             outputElement.classList.remove('hidden');
-
         } finally {
-            // --- 4. TOUJOURS nettoyer l'interface à la fin ---
             clearInterval(loadingInterval);
-            
-            // Disparition en douceur de l'animation
             loadingElement.classList.remove('is-visible');
             setTimeout(() => {
                 loadingElement.classList.add('hidden');
-            }, 400); // Doit correspondre à la durée de la transition CSS
+            }, 400);
         }
     }
-    
     document.addEventListener('DOMContentLoaded', () => {
         const selectContainer = document.getElementById('custom-select-container');
         const selectedDisplay = document.getElementById('select-selected');
@@ -548,20 +552,32 @@
         const historyTrigger = document.getElementById('history-trigger');
         const historyPanel = document.getElementById('history-panel');
         const seeMoreTrigger = document.getElementById('see-more-trigger');
-
         let selectedValue = "";
-
-        const options = [
-            { value: "", text: "Sélectionnez une tâche..." },
-            { value: "rédiger un courriel de remerciement pour un bénévole", text: "Rédiger un courriel de remerciement" },
-            { value: "résumer un rapport financier annuel", text: "Résumer un rapport financier" },
-            { value: "créer un plan de communication pour un événement", text: "Créer un plan de communication" },
-            { value: "brainstormer des idées de levée de fonds", text: "Brainstormer des idées de levée de fonds" },
-            { value: "créer une publication pour les réseaux sociaux pour annoncer un événement", text: "Créer une publication pour les réseaux sociaux" },
-            { value: "rédiger une demande de subvention", text: "Rédiger une demande de subvention" },
-            { value: "créer un sondage de satisfaction pour les bénévoles", text: "Sondage de satisfaction pour les bénévoles" }
-        ];
-
+        const options = [{
+            value: "",
+            text: "Sélectionnez une tâche..."
+        }, {
+            value: "rédiger un courriel de remerciement pour un bénévole",
+            text: "Rédiger un courriel de remerciement"
+        }, {
+            value: "résumer un rapport financier annuel",
+            text: "Résumer un rapport financier"
+        }, {
+            value: "créer un plan de communication pour un événement",
+            text: "Créer un plan de communication"
+        }, {
+            value: "brainstormer des idées de levée de fonds",
+            text: "Brainstormer des idées de levée de fonds"
+        }, {
+            value: "créer une publication pour les réseaux sociaux pour annoncer un événement",
+            text: "Créer une publication pour les réseaux sociaux"
+        }, {
+            value: "rédiger une demande de subvention",
+            text: "Rédiger une demande de subvention"
+        }, {
+            value: "créer un sondage de satisfaction pour les bénévoles",
+            text: "Sondage de satisfaction pour les bénévoles"
+        }];
         options.forEach(option => {
             const optionEl = document.createElement('div');
             optionEl.textContent = option.text;
@@ -579,7 +595,27 @@
             });
             optionsContainer.appendChild(optionEl);
         });
+        
+        let selectedTone = '';
+        let selectedDetail = 'Standard';
+        const toneOptions = document.getElementById('tone-options');
+        const detailOptions = document.getElementById('detail-options');
 
+        function setupButtonGroup(container, variableSetter) {
+            const buttons = container.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    variableSetter(e.currentTarget.dataset.value);
+                });
+            });
+        }
+
+        setupButtonGroup(toneOptions, (value) => selectedTone = value);
+        setupButtonGroup(detailOptions, (value) => selectedDetail = value);
+        
         customTaskInput.addEventListener('input', () => {
             if (customTaskInput.value.trim() !== '') {
                 selectedValue = "";
@@ -592,13 +628,11 @@
             optionsContainer.classList.add('hidden');
             selectArrow.classList.remove('select-arrow-up');
         }
-
         selectedDisplay.addEventListener('click', (e) => {
             e.stopPropagation();
             optionsContainer.classList.toggle('hidden');
             selectArrow.classList.toggle('select-arrow-up');
         });
-
         window.addEventListener('click', (e) => {
             if (!selectContainer.contains(e.target)) {
                 closeSelect();
@@ -609,19 +643,16 @@
             const isTaskSelected = selectedValue !== '';
             const isCustomTaskEntered = customTaskInput.value.trim() !== '';
             generatePromptBtn.disabled = !isTaskSelected && !isCustomTaskEntered;
-
             if (isTaskSelected || isCustomTaskEntered) {
                 btnEmoji.classList.remove('hidden');
             } else {
                 btnEmoji.classList.add('hidden');
             }
-
             if (isTaskSelected) {
                 selectedDisplay.classList.add('border-[#010132]', 'border-2');
             } else {
                 selectedDisplay.classList.remove('border-[#010132]', 'border-2');
             }
-
             if (isCustomTaskEntered) {
                 customTaskInput.classList.add('border-[#010132]', 'border-2');
             } else {
@@ -634,11 +665,23 @@
             const task = customTaskValue !== '' ? customTaskValue : selectedValue;
 
             if (task) {
+                let customizationInstructions = "\n\nInstructions supplémentaires pour le prompt que tu génères :";
+                let hasCustomizations = false;
+                if (selectedTone) {
+                    customizationInstructions += `\n- Le ton doit être : **${selectedTone}**.`;
+                    hasCustomizations = true;
+                }
+                if (selectedDetail) {
+                    customizationInstructions += `\n- Le niveau de détail doit être : **${selectedDetail}**.`;
+                    hasCustomizations = true;
+                }
+                
                 const prompt = `Ta réponse doit commencer par une phrase d'introduction amicale et contextuelle qui varie à chaque fois. Par exemple : "Voici un prompt que vous pourriez utiliser avec votre agent conversationnel préféré pour la tâche suivante :" ou "Pour vous aider avec la tâche suivante, voici une suggestion de prompt :".
 
 Ensuite, rédige un prompt pour la tâche : "${task}".
 
 Ce prompt doit être adapté au contexte d'un organisme communautaire (OBNL).
+${hasCustomizations ? customizationInstructions : ''}
 
 Instructions de formatage pour le prompt que tu génères :
 1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).
@@ -646,7 +689,7 @@ Instructions de formatage pour le prompt que tu génères :
                 callGeminiAPI(prompt, promptOutput, promptLoading, copyBtn);
             }
         });
-
+        
         copyBtn.addEventListener('click', () => {
             const promptText = promptOutput.innerText;
             navigator.clipboard.writeText(promptText).then(() => {
@@ -665,20 +708,17 @@ Instructions de formatage pour le prompt que tu génères :
                 copyBtn.textContent = 'Erreur';
             });
         });
-        
         historyTrigger.addEventListener('click', () => {
             document.body.classList.toggle('history-open');
         });
-
         seeMoreTrigger.addEventListener('click', () => {
             isHistoryExpanded = !isHistoryExpanded;
             historyPanel.classList.toggle('history-expanded');
             renderHistory();
         });
-
         updateUIState();
         renderHistory();
-        });
-    </script>
+    });
+</script>
 </body>
 </html>
