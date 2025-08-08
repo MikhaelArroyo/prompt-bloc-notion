@@ -373,6 +373,30 @@
                 opacity: .2;
             }
         }
+
+        @media (max-width: 1023px) {
+            #history-trigger {
+                position: relative;
+                top: auto;
+                right: auto;
+                transform: none;
+                padding-left: 0;
+                text-align: center;
+                margin-top: 1.5rem;
+            }
+
+            #history-panel {
+                position: relative;
+                left: 0;
+                top: auto;
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            body.history-open #main-panel {
+                transform: none;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
