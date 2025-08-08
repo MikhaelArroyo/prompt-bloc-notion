@@ -481,7 +481,7 @@
 
             const payload = {
                 prompt: prompt,
-                model: 'gemini-2.0-flash-lite'
+                model: 'gemini-2.0-flash-lite' 
             };
 
             try {
@@ -491,32 +491,48 @@
                     body: JSON.stringify(payload)
                 });
 
+                // Si la réponse n'est pas un succès (status autre que 2xx)
                 if (!response.ok) {
-                    throw new Error(`Erreur lors de l'appel au proxy: ${response.statusText}`);
+                    if (response.status === 429) {
+                        // On crée une erreur personnalisée pour la reconnaître dans le 'catch'
+                        const rateLimitError = new Error("Rate limit exceeded");
+                        rateLimitError.isRateLimit = true; // On ajoute un marqueur
+                        throw rateLimitError;
+                    }
+                    // Pour toutes les autres erreurs serveur (500, 400, etc.)
+                    throw new Error(`Erreur du serveur: ${response.status}`);
                 }
 
                 const result = await response.json();
-
                 const text = result?.text;
+
                 if (text) {
                     outputElement.innerHTML = parseMarkdown(text);
                     outputElement.classList.remove('hidden');
                     copyBtn.classList.remove('hidden');
-                    savePromptToHistory(text); // Sauvegarde le nouveau prompt
-                    renderHistory(); // Met à jour l'affichage de l'historique
+                    savePromptToHistory(text);
+                    renderHistory();
                 } else {
                     throw new Error("Réponse invalide de l'API");
                 }
             } catch (error) {
                 console.error(error);
-                outputElement.innerHTML = "Désolé, une erreur est survenue. Veuillez réessayer.";
+
+                if (error.isRateLimit) {
+                    outputElement.innerHTML = "Oups ! Trop de requêtes en même temps, veuillez patienter une minute.";
+                } else {
+                    // Message générique pour toutes les autres erreurs
+                    outputElement.innerHTML = "Désolé, une erreur est survenue. Veuillez réessayer.";
+                }
                 outputElement.classList.remove('hidden');
+
             } finally {
+                // Ce bloc s'exécute toujours pour nettoyer l'interface
                 clearInterval(loadingInterval);
                 loadingElement.classList.add('hidden');
             }
         }
-
+        
         document.addEventListener('DOMContentLoaded', () => {
             const selectContainer = document.getElementById('custom-select-container');
             const selectedDisplay = document.getElementById('select-selected');
