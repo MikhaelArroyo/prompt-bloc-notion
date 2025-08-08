@@ -371,7 +371,7 @@
         }
 
 
-        async function callGeminiAPI(prompt, outputElement, loadingElement) {
+        async function callGeminiAPI(prompt, outputElement, loadingElement, copyBtn) {
             outputElement.innerHTML = '';
             outputElement.classList.add('hidden');
             copyBtn.classList.add('hidden');
@@ -535,21 +535,20 @@
             }
 
             generatePromptBtn.addEventListener('click', () => {
-                let taskText = '';
                 const customTaskValue = customTaskInput.value.trim();
+                const task = customTaskValue !== '' ? customTaskValue : selectedValue;
 
-                if (customTaskValue !== '') {
-                    taskText = customTaskValue;
-                } else {
-                    const selectedOption = options.find(opt => opt.value === selectedValue);
-                    if (selectedOption) {
-                        taskText = selectedOption.text;
-                    }
-                }
+                if (task) {
+                    const prompt = `Ta réponse doit commencer par une phrase d'introduction amicale et contextuelle qui varie à chaque fois. Par exemple : "Voici un prompt que vous pourriez utiliser avec votre agent conversationnel préféré pour la tâche suivante :" ou "Pour vous aider avec la tâche suivante, voici une suggestion de prompt :".
 
-                if (taskText) {
-                    const prompt = `Ta réponse doit commencer par une phrase d'introduction amicale et contextuelle qui varie à chaque fois. Par exemple : "Voici un prompt que vous pourriez utiliser avec votre agent conversationnel préféré pour ${taskText.toLowerCase()} :" ou "Pour vous aider à ${taskText.toLowerCase()}, voici une suggestion de prompt :".\n\nEnsuite, rédige le prompt lui-même. Ce prompt doit être adapté au contexte d'un organisme communautaire (OBNL).\n\nInstructions de formatage pour le prompt que tu génères :\n1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).\n2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].`;
-                    callGeminiAPI(prompt, promptOutput, promptLoading);
+Ensuite, rédige un prompt pour la tâche : "${task}".
+
+Ce prompt doit être adapté au contexte d'un organisme communautaire (OBNL).
+
+Instructions de formatage pour le prompt que tu génères :
+1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).
+2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].`;
+                    callGeminiAPI(prompt, promptOutput, promptLoading, copyBtn);
                 }
             });
 
