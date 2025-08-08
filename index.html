@@ -314,6 +314,14 @@
         </div>
     </div>
 
+     <div class="container mx-auto px-6 py-8 max-w-2xl">
+        <div id="prompt-history" class="hidden">
+            <h3 class="text-xl font-bold text-[#010132] mb-4">Historique récent</h3>
+            <div id="history-list" class="space-y-2">
+                </div>
+        </div>
+    </div>
+
     <footer class="py-8">
         <div class="container mx-auto px-6 text-center">
             <a href="https://lapuce.org" target="_blank" rel="noopener noreferrer" class="inline-block">
@@ -357,7 +365,62 @@
             "Saupoudrage de poussière d'étoiles...",
             "La magie opère..."
         ];
+        
+        /**
+        * Sauvegarde un prompt dans l'historique (localStorage) et le met à jour.
+        * @param {string} promptText - Le texte brut du prompt à sauvegarder.
+        */
+        function savePromptToHistory(promptText) {
+            // Récupère l'historique existant ou crée un tableau vide.
+            const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
+    
+            // Ajoute le nouveau prompt au début du tableau.
+        history.unshift(promptText);
 
+            // Limite l'historique aux 10 derniers prompts pour ne pas surcharger.
+        const limitedHistory = history.slice(0, 10);
+
+            // Sauvegarde le tableau mis à jour dans le localStorage.
+            localStorage.setItem('promptHistory', JSON.stringify(limitedHistory));
+        }
+
+        /**
+        * Affiche les prompts de l'historique sur la page.
+        */
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
+            const historyContainer = document.getElementById('prompt-history');
+            const historyList = document.getElementById('history-list');
+
+        // Récupère les éléments de la page nécessaires pour la réutilisation des prompts.
+            const promptOutput = document.getElementById('prompt-output');
+            const copyBtn = document.getElementById('copy-btn');
+
+            if (history.length > 0) {
+                historyContainer.classList.remove('hidden');
+                historyList.innerHTML = ''; // Vide la liste actuelle pour la reconstruire.
+
+                history.forEach(promptText => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'p-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors text-sm text-slate-700';
+            
+                    // Affiche un aperçu tronqué du prompt.
+                    historyItem.textContent = promptText.substring(0, 100) + (promptText.length > 100 ? '...' : '');
+
+                    // Ajoute un événement au clic pour réafficher le prompt.
+                    historyItem.addEventListener('click', () => {
+                        promptOutput.innerHTML = parseMarkdown(promptText);
+                        promptOutput.classList.remove('hidden');
+                        copyBtn.classList.remove('hidden');
+                        // Fait défiler la page pour voir le prompt sélectionné.
+                        promptOutput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    });
+
+                    historyList.appendChild(historyItem);
+                });
+            }
+        }
+        
         /**
          * Shuffles array in place.
          * @param {Array} a items An array containing the items.
@@ -417,6 +480,8 @@
                     outputElement.innerHTML = parseMarkdown(text);
                     outputElement.classList.remove('hidden');
                     copyBtn.classList.remove('hidden');
+                    savePromptToHistory(text); // Sauvegarde le nouveau prompt
+                    renderHistory(); // Met à jour l'affichage de l'historique
                 } else {
                     throw new Error("Réponse invalide de l'API");
                 }
@@ -542,13 +607,13 @@
                 if (task) {
                     const prompt = `Ta réponse doit commencer par une phrase d'introduction amicale et contextuelle qui varie à chaque fois. Par exemple : "Voici un prompt que vous pourriez utiliser avec votre agent conversationnel préféré pour la tâche suivante :" ou "Pour vous aider avec la tâche suivante, voici une suggestion de prompt :".
 
-Ensuite, rédige un prompt pour la tâche : "${task}".
+                    Ensuite, rédige un prompt pour la tâche : "${task}".
 
-Ce prompt doit être adapté au contexte d'un organisme communautaire (OBNL).
+                    Ce prompt doit être adapté au contexte d'un organisme communautaire (OBNL).
 
-Instructions de formatage pour le prompt que tu génères :
-1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).
-2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].`;
+                    Instructions de formatage pour le prompt que tu génères :
+                    1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).
+                    2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].`;
                     callGeminiAPI(prompt, promptOutput, promptLoading, copyBtn);
                 }
             });
@@ -567,6 +632,7 @@ Instructions de formatage pour le prompt que tu génères :
             });
 
             updateUIState();
+            renderHistory(); // Affiche l'historique au chargement initial.
         });
     </script>
 </body>
