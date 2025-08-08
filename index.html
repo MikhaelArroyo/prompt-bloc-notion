@@ -29,6 +29,39 @@
             opacity: 0;
         }
 
+        #history-panel {
+            position: absolute;
+            /* Aligne le haut de la liste sous le texte "Historique récent" */
+            top: 4.5rem; 
+            /* Aligne la gauche de la liste avec la gauche du texte "Historique récent" */
+            left: calc(100% + 2rem); 
+            width: 350px; /* On donne une largeur fixe à la liste */
+
+            /* État initial pour l'animation (caché) */
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+
+            /* Transition douce pour l'apparition */
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        /* On conserve le décalage du panneau principal */
+        body.history-open #main-panel {
+            transform: translateX(-175px); /* On décale de la moitié de la largeur de la liste (350px / 2) */
+        }
+
+        /* État final pour l'animation (visible) */
+        body.history-open #history-panel {
+            opacity: 1;
+            max-height: 80vh; /* Se déploie jusqu'à une hauteur maximale */
+        }
+    
+        /* Animation de la flèche */
+        body.history-open #history-arrow {
+            transform: rotate(90deg);
+        }
+
         /* --- Animation: Typewriter --- */
         .typewriter-loader {
             --blue: #5C86FF;
@@ -262,16 +295,6 @@
                 box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 12px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
             }
         }
-        body.history-open #main-panel {
-            /* Décale le panneau principal vers la gauche de la moitié de la largeur du panneau d'historique (1/3 de la page / 2 = 16.66%) */
-            transform: translateX(-16.66vw);
-        }
-
-        body.history-open #history-panel {
-            /* Fait apparaître le panneau d'historique */
-            transform: translateX(0);
-            opacity: 1;
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
@@ -317,28 +340,24 @@
                         </div>
 
                     </div> 
+                    
                     <div id="history-trigger" class="absolute top-8 -right-4 translate-x-full pl-4 cursor-pointer group">
                         <h3 class="text-lg font-bold text-slate-500 group-hover:text-[#010132] transition-colors whitespace-nowrap">
-                            Historique récent <span class="group-hover:ml-2 transition-all">→</span>
+                        Historique récent <span id="history-arrow" class="inline-block transition-transform duration-300">→</span>
                         </h3>
                     </div>
                 </div>
             </div>
-
-                <div id="history-panel" class="fixed top-0 right-0 h-full md:w-1/3 bg-slate-50 p-6 pt-12 shadow-2xl transform translate-x-full transition-transform duration-700 ease-in-out opacity-0">
-                    <div id="prompt-history">
-                        <div id="history-content" class="transition-opacity duration-500">
-                            <h3 class="text-xl font-bold text-[#010132] mb-4">Historique récent</h3>
-                            <div id="history-list" class="space-y-2 max-h-[calc(100vh-10rem)] overflow-y-auto pr-2">
-                            </div>
-                            <button id="see-more-btn" class="hidden w-full text-center p-2 mt-2 text-sm font-semibold text-[#010132] hover:underline">
-                                Voir plus ↓
-                            </button>
-                        </div>
+                <div id="history-panel">
+                    <div id="history-list" class="space-y-2 max-h-[calc(100vh-10rem)] overflow-y-auto pr-2">
                     </div>
+                    <button id="see-more-btn" class="hidden w-full text-left p-2 mt-2 text-sm font-semibold text-[#010132] hover:underline">
+                        Voir plus ↓
+                    </button>
                 </div>
         </div>
     </div>
+    
     <footer class="py-8">
         <div class="container mx-auto px-6 text-center">
             <a href="https://lapuce.org" target="_blank" rel="noopener noreferrer" class="inline-block">
