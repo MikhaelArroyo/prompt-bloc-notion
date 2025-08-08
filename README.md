@@ -17,6 +17,14 @@ Ce projet est une application web simple conçue pour aider les membres d'organi
 
 L'application appelle une API pour générer les prompts, qui utilise l'API de Google Gemini.
 
+## Détails techniques
+
+Quelques détails sur le fonctionnement interne de l'application :
+
+*   **Proxy API** : Les appels à l'API de Google Gemini sont effectués via un proxy (un Cloudflare Worker). Cela permet de ne pas exposer de clés d'API directement dans le code côté client, renforçant ainsi la sécurité.
+*   **Génération de prompt dynamique** : Le prompt envoyé à l'API n'est pas statique. Il est construit dynamiquement en JavaScript en fonction de la tâche sélectionnée par l'utilisateur, avec des instructions spécifiques pour garantir un format de réponse cohérent.
+*   **Formatage Markdown** : La réponse de l'API est formatée en utilisant une fonction JavaScript simple qui convertit des balises de base (comme `**gras**` et `[[placeholder]]`) en HTML pour un affichage stylisé.
+
 ## À propos
 
 Ce projet a été développé pour **La Puce Ressource Informatique**, un organisme communautaire qui vise à rendre la technologie accessible à tous.
