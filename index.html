@@ -131,6 +131,7 @@
         }
         .custom-btn:hover {
             background-color: #f1f5f9; /* bg-slate-100 */
+            color: #010132;
         }
         .custom-btn.active {
             background-color: #010132;
@@ -202,25 +203,25 @@
                             <p data-i18n-key="or_text" class="text-center text-slate-500 my-4">ou</p>
                             <div class="relative mb-4 flex items-center">
                                 <input type="text" id="custom-task-input" data-i18n-placeholder-key="custom_task_placeholder" placeholder="Entrez une tâche personnalisée ici..." class="w-full p-3 border border-slate-300 rounded-lg transition-all duration-300 focus:border-[#010132] focus:ring-1 focus:ring-[#010132]">
-                                <button id="inspire-me-btn" data-i18n-key="inspire_me" class="custom-btn text-sm px-3 flex-shrink-0 ml-6" style="padding-top: 0.875rem; padding-bottom: 0.875rem; font-weight: 600;">J'ai besoin d'inspiration</button>
+                                <button id="inspire-me-btn" data-i18n-key="inspire_me" class="custom-btn flex-shrink-0 py-3 ml-2" style="">J'ai besoin d'inspiration</button>
                             </div>
                         </div>
                         <div id="customization-options" class="space-y-6 mb-8">
                             <div>
-                                <label data-i18n-key="tone_label" class="block text-slate-700 font-bold mb-2">🎨 Ton</label>
+                                <label data-i18n-key="tone_label" class="block text-[#010132] text-slate-900 font-bold mb-2">🎨 Ton</label>
                                 <div id="tone-options" class="flex flex-wrap gap-2">
-                                    <button data-value="Professionnel" data-i18n-key="tone_professional" class="custom-btn">Professionnel</button>
-                                    <button data-value="Amical" data-i18n-key="tone_friendly" class="custom-btn">Amical</button>
-                                    <button data-value="Créatif" data-i18n-key="tone_creative" class="custom-btn">Créatif</button>
-                                    <button data-value="Urgent" data-i18n-key="tone_urgent" class="custom-btn">Urgent</button>
+                                    <button data-value="Professionnel" data-i18n-key="tone_professional" class="custom-btn py-3">Professionnel</button>
+                                    <button data-value="Amical" data-i18n-key="tone_friendly" class="custom-btn py-3">Amical</button>
+                                    <button data-value="Créatif" data-i18n-key="tone_creative" class="custom-btn py-3">Créatif</button>
+                                    <button data-value="Urgent" data-i18n-key="tone_urgent" class="custom-btn py-3">Urgent</button>
                                 </div>
                             </div>
                             <div>
-                                <label data-i18n-key="detail_label" class="block text-slate-700 font-bold mb-2">📊 Niveau de détail</label>
+                                <label data-i18n-key="detail_label" class="block text-[#010132] text-slate-900 font-bold mb-2">📊 Niveau de détail</label>
                                 <div id="detail-options" class="flex flex-wrap gap-2">
-                                    <button data-value="Concise" data-i18n-key="detail_concise" class="custom-btn">Concise</button>
-                                    <button data-value="Standard" data-i18n-key="detail_standard" class="custom-btn active">Standard</button>
-                                    <button data-value="Très détaillé" data-i18n-key="detail_detailed" class="custom-btn">Très détaillé</button>
+                                    <button data-value="Concise" data-i18n-key="detail_concise" class="custom-btn py-3">Concise</button>
+                                    <button data-value="Standard" data-i18n-key="detail_standard" class="custom-btn py-3 active">Standard</button>
+                                    <button data-value="Très détaillé" data-i18n-key="detail_detailed" class="custom-btn py-3">Très détaillé</button>
                                 </div>
                             </div>
                         </div>
@@ -248,8 +249,8 @@
                         </div>
                     </div>
                         <div id="history-trigger" class="absolute top-4 -right-1 translate-x-full pl-4 cursor-pointer group">
-                            <h3 data-i18n-key="history_title" class="text-lg font-bold text-slate-500 group-hover:text-[#010132] transition-colors whitespace-nowrap">
-                            Historique <span id="history-arrow" class="inline-block transition-transform duration-300">►</span>
+                            <h3 data-i18n-key="history_title" class="text-lg font-bold text-slate-700 group-hover:text-[#010132] transition-colors whitespace-nowrap">
+                            Historique <span id="history-arrow" class="inline-block transition-transform duration-300">˃</span>
                             </h3>
                         </div>
                         <div id="history-panel" class="flex flex-col">
@@ -258,7 +259,7 @@
                             <div id="see-more-trigger" class="hidden cursor-pointer group pt-3 mt-3 border-t border-slate-200">
                                 <h3 class="text-md font-bold text-slate-500 group-hover:text-[#010132] transition-colors">
                                     <span id="see-more-text" data-i18n-key="see_more">Voir plus</span>
-                                    <span id="see-more-arrow" class="inline-block align-middle transition-transform duration-300">↓</span>
+                                    <span id="see-more-arrow" class="inline-block align-middle transition-transform duration-300">+</span>
                                 </h3>
                             </div>
                             <div id="export-history-container" class="pt-3 mt-auto hidden">
