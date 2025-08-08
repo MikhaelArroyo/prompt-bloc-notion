@@ -56,6 +56,31 @@
             max-height: 80vh;
         }
 
+        /* --- Custom Scrollbar --- */
+        #history-list {
+            overflow-y: hidden; /* Hide scrollbar by default */
+        }
+        #history-panel.history-expanded #history-list {
+            overflow-y: auto; /* Show scrollbar only when expanded */
+        }
+        #history-list::-webkit-scrollbar-button {
+            display: none; /* Hide scrollbar arrows */
+        }
+        #history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #history-list::-webkit-scrollbar-thumb {
+            background: #010132;
+            border-radius: 10px;
+        }
+        #history-list {
+           scrollbar-width: thin;
+           scrollbar-color: #010132 transparent;
+        }
+
         /* Animation de la flèche */
         body.history-open #history-arrow {
             transform: rotate(-90deg);
@@ -219,6 +244,16 @@
             border-color: #010132;
         }
 
+        .loading-dots span {
+            animation: blink 1.4s infinite both;
+        }
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
         @keyframes bounce05 {
             85%, 92%, 100% {
                 transform: translateY(0);
@@ -326,6 +361,18 @@
                 box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 12px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
             }
         }
+
+        @keyframes blink {
+            0% {
+                opacity: .2;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                opacity: .2;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
@@ -345,8 +392,9 @@
                                 <div id="select-options" class="hidden absolute top-full left-0 right-0 bg-white border border-t-0 border-slate-300 rounded-b-lg shadow-lg z-10 overflow-hidden"></div>
                             </div>
                             <p class="text-center text-slate-500 my-4">ou</p>
-                            <div class="relative mb-8">
+                            <div class="relative mb-8 flex items-center">
                                 <input type="text" id="custom-task-input" placeholder="Entrez une tâche personnalisée ici..." class="w-full p-3 border border-slate-300 rounded-lg transition-all duration-300 focus:border-[#010132] focus:ring-1 focus:ring-[#010132]">
+                                <button id="inspire-me-btn" class="custom-btn text-sm px-3 flex-shrink-0 ml-6" style="padding-top: 0.875rem; padding-bottom: 0.875rem; font-weight: 600;">J'ai besoin d'inspiration</button>
                             </div>
                         </div>
                         <div id="customization-options" class="space-y-6 mb-8">
@@ -393,14 +441,17 @@
                             Historique récent <span id="history-arrow" class="inline-block transition-transform duration-300">→</span>
                             </h3>
                         </div>
-                        <div id="history-panel">
-                            <div id="history-list" class="space-y-2 max-h-[calc(100vh-12rem)] overflow-y-auto pr-2">
+                        <div id="history-panel" class="flex flex-col">
+                            <div id="history-list" class="flex-grow space-y-2 max-h-[calc(80vh-8rem)] pr-2">
                             </div>
                             <div id="see-more-trigger" class="hidden cursor-pointer group pt-3 mt-3 border-t border-slate-200">
                                 <h3 class="text-md font-bold text-slate-500 group-hover:text-[#010132] transition-colors">
                                     <span id="see-more-text">Voir plus</span>
                                     <span id="see-more-arrow" class="inline-block align-middle transition-transform duration-300">↓</span>
                                 </h3>
+                            </div>
+                            <div id="export-history-container" class="pt-3 mt-auto hidden">
+                                <button id="export-history-btn" class="w-full custom-btn text-sm" style="padding-top: 0.875rem; padding-bottom: 0.875rem;">Exporter l'historique (.txt)</button>
                             </div>
                         </div>
                 </div>
@@ -425,6 +476,7 @@
     let loadingInterval;
     let isHistoryExpanded = false;
     const allLoadingMessages = ["Assemblage des idées...", "Préparation de la toile...", "Mélange des couleurs...", "Touche finale du pinceau...", "Votre chef-d'œuvre arrive...", "Démarrage des machines...", "Calibration des circuits...", "Compilation des données...", "Optimisation de l'algorithme...", "Génération du résultat...", "Consultation de la boule de cristal...", "Mélange des potions...", "Invocation des esprits créatifs...", "Saupoudrage de poussière d'étoiles...", "La magie opère..."];
+    const SAFETY_INSTRUCTIONS = `\n\nConsignes de sécurité : Ta réponse ne doit contenir aucun contenu violent, haineux, sexuel, discriminatoire, ou offensant. Évite les sujets controversés comme la politique, la guerre, ou la religion. Reste strictement dans un contexte professionnel, amical et sécuritaire.`;
     function savePromptToHistory(promptText) {
         const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
         history.unshift(promptText);
@@ -438,8 +490,12 @@
         const seeMoreText = document.getElementById('see-more-text');
         const promptOutput = document.getElementById('prompt-output');
         const copyBtn = document.getElementById('copy-btn');
+        const exportHistoryContainer = document.getElementById('export-history-container');
+
         historyList.innerHTML = '';
+
         if (history.length > 0) {
+            exportHistoryContainer.classList.remove('hidden');
             const itemsToShow = (isHistoryExpanded || history.length <= 6) ? history : history.slice(0, 6);
             itemsToShow.forEach(promptText => {
                 const historyItem = document.createElement('div');
@@ -462,6 +518,8 @@
             } else {
                 seeMoreTrigger.classList.add('hidden');
             }
+        } else {
+            exportHistoryContainer.classList.add('hidden');
         }
     }
     function shuffle(a) {
@@ -553,9 +611,12 @@
         const historyTrigger = document.getElementById('history-trigger');
         const historyPanel = document.getElementById('history-panel');
         const seeMoreTrigger = document.getElementById('see-more-trigger');
+        const inspireMeBtn = document.getElementById('inspire-me-btn');
+        const exportHistoryBtn = document.getElementById('export-history-btn');
         
         let selectedValue = "";
         let promptGenerationCount = 0; // **NOUVEAU** : Compteur de session
+        let inspirationClickCount = 0;
 
         const options = [{
             value: "",
@@ -643,6 +704,63 @@
             }
         });
 
+        inspireMeBtn.addEventListener('click', async () => {
+            if (inspirationClickCount >= 2) {
+                return; // Do nothing if the limit is reached
+            }
+
+            inspirationClickCount++;
+            const originalButtonText = inspireMeBtn.innerHTML;
+            inspireMeBtn.disabled = true;
+            inspireMeBtn.innerHTML = `<span class="loading-dots" style="font-size: 2rem; line-height: 0.5;"><span>.</span><span>.</span><span>.</span></span>`;
+
+            const inspirationPrompt = `Génère une seule idée de tâche simple et courte pour un employé ou un bénévole d'un organisme à but non lucratif (OBNL) au Québec. La tâche doit être similaire en complexité à "rédiger une demande de subvention" ou "créer une publication pour les réseaux sociaux". Réponds uniquement avec l'intitulé de la tâche, sans aucune phrase d'introduction, formatage (pas de gras, pas d'astérisques), ou ponctuation finale.` + SAFETY_INSTRUCTIONS;
+
+            const proxyApiUrl = "https://gemini-proxy-notion.michael-araujo.workers.dev/";
+            const payload = {
+                prompt: inspirationPrompt,
+                model: 'gemini-2.0-flash-lite'
+            };
+
+            try {
+                const response = await fetch(proxyApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur de l'API: ${response.status}`);
+                }
+
+                const result = await response.json();
+                let taskText = result?.text?.trim();
+
+                if (taskText) {
+                    // Clean up potential markdown or quotes
+                    taskText = taskText.replace(/^"|"$|^\*+\s*|\s*\*+$|^\s*-\s*/gm, '');
+                    customTaskInput.value = taskText;
+                    selectText.textContent = "Sélectionnez une tâche...";
+                    selectedValue = "";
+                    updateUIState();
+                } else {
+                    throw new Error("Réponse invalide de l'API");
+                }
+
+            } catch (error) {
+                console.error("Erreur lors de la génération de l'inspiration:", error);
+                customTaskInput.value = "Erreur lors de la génération. Veuillez réessayer.";
+            } finally {
+                if (inspirationClickCount >= 2) {
+                    inspireMeBtn.innerHTML = "Limite atteinte";
+                    // The button remains disabled
+                } else {
+                    inspireMeBtn.disabled = false;
+                    inspireMeBtn.innerHTML = originalButtonText;
+                }
+            }
+        });
+
         function updateUIState() {
             const isTaskSelected = selectedValue !== '';
             const isCustomTaskEntered = customTaskInput.value.trim() !== '';
@@ -697,7 +815,7 @@ ${hasCustomizations ? customizationInstructions : ''}
 
 Instructions de formatage pour le prompt que tu génères :
 1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).
-2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].`;
+2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].` + SAFETY_INSTRUCTIONS;
                 callGeminiAPI(prompt, promptOutput, promptLoading, copyBtn);
             }
         });
@@ -728,6 +846,33 @@ Instructions de formatage pour le prompt que tu génères :
             historyPanel.classList.toggle('history-expanded');
             renderHistory();
         });
+
+        exportHistoryBtn.addEventListener('click', () => {
+            const history = JSON.parse(localStorage.getItem('promptHistory')) || [];
+            if (history.length === 0) {
+                alert("L'historique est vide. Générez un prompt pour pouvoir l'exporter.");
+                return;
+            }
+
+            // The history is stored with the newest item first. Reverse it for chronological export.
+            const chronologicalHistory = [...history].reverse();
+
+            const fileContent = chronologicalHistory.map((prompt, index) => {
+                // The stored prompt is raw text from the API, so no HTML cleaning is needed.
+                return `====================\nPROMPT ${index + 1}\n====================\n\n${prompt}`;
+            }).join('\n\n\n'); // Use triple newline for more space between entries
+
+            const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'idées-prompts-lapuce.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+
         updateUIState();
         renderHistory();
     });
