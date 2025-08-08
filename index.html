@@ -29,42 +29,38 @@
             opacity: 0;
         }
         
+        /* MODIFIED: History Panel Animation */
         #history-panel {
-            /* On positionne la liste par rapport à son parent, #main-panel */
             position: absolute;
-            /* Aligne parfaitement la liste SOUS le texte du déclencheur */
             top: 4.5rem; 
-            /* Aligne la gauche de la liste à 1rem de la bordure droite du panneau principal */
             left: calc(100% + 2rem); 
             width: 50%;
-            /* État initial pour l'animation (caché) */
             opacity: 0;
-            max-height: 0;
-            overflow: hidden;
-            /* Transition douce pour l'apparition */
-            transition: max-height 0.6s ease-in-out, opacity 0.5s ease-in-out;
+            transform: translateX(30px);
+            pointer-events: none;
+            transition: transform 0.5s ease-out, opacity 0.4s ease-out;
         }
 
-        /* On conserve le décalage du panneau principal */
         body.history-open #main-panel {
             transform: translateX(-150px);
         }
 
-        /* État final pour l'animation (visible) */
         body.history-open #history-panel {
             opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
             max-height: 80vh;
         }
 
         /* --- Custom Scrollbar --- */
         #history-list {
-            overflow-y: hidden; /* Hide scrollbar by default */
+            overflow-y: hidden;
         }
         #history-panel.history-expanded #history-list {
-            overflow-y: auto; /* Show scrollbar only when expanded */
+            overflow-y: auto;
         }
         #history-list::-webkit-scrollbar-button {
-            display: none; /* Hide scrollbar arrows */
+            display: none;
         }
         #history-list::-webkit-scrollbar {
             width: 8px;
@@ -81,12 +77,10 @@
            scrollbar-color: #010132 transparent;
         }
 
-        /* Animation de la flèche */
         body.history-open #history-arrow {
             transform: rotate(-90deg);
         }
         
-        /* [NOUVEAU] Animation de la flèche pour "Voir plus" */
         #history-panel.history-expanded #see-more-arrow {
             transform: rotate(180deg);
         }
@@ -113,118 +107,18 @@
             -webkit-animation: bounce05 var(--duration) linear infinite;
             animation: bounce05 var(--duration) linear infinite;
         }
-
-        .typewriter-loader .slide {
-            width: 92px;
-            height: 20px;
-            border-radius: 3px;
-            margin-left: 14px;
-            transform: translateX(14px);
-            background: linear-gradient(var(--blue), var(--blue-dark));
-            -webkit-animation: slide05 var(--duration) ease infinite;
-            animation: slide05 var(--duration) ease infinite;
-        }
-
-        .typewriter-loader .slide:before, .typewriter-loader .slide:after,
-        .typewriter-loader .slide i:before {
-            content: "";
-            position: absolute;
-            background: var(--tool);
-        }
-
-        .typewriter-loader .slide:before {
-            width: 2px;
-            height: 8px;
-            top: 6px;
-            left: 100%;
-        }
-
-        .typewriter-loader .slide:after {
-            left: 94px;
-            top: 3px;
-            height: 14px;
-            width: 6px;
-            border-radius: 3px;
-        }
-
-        .typewriter-loader .slide i {
-            display: block;
-            position: absolute;
-            right: 100%;
-            width: 6px;
-            height: 4px;
-            top: 4px;
-            background: var(--tool);
-        }
-
-        .typewriter-loader .slide i:before {
-            right: 100%;
-            top: -2px;
-            width: 4px;
-            border-radius: 2px;
-            height: 14px;
-        }
-
-        .typewriter-loader .paper {
-            position: absolute;
-            left: 24px;
-            top: -26px;
-            width: 40px;
-            height: 46px;
-            border-radius: 5px;
-            background: var(--paper);
-            transform: translateY(46px);
-            -webkit-animation: paper05 var(--duration) linear infinite;
-            animation: paper05 var(--duration) linear infinite;
-        }
-
-        .typewriter-loader .paper:before {
-            content: "";
-            position: absolute;
-            left: 6px;
-            right: 6px;
-            top: 7px;
-            border-radius: 2px;
-            height: 4px;
-            transform: scaleY(0.8);
-            background: var(--text);
-            box-shadow: 0 12px 0 var(--text), 0 24px 0 var(--text), 0 36px 0 var(--text);
-        }
-
-        .typewriter-loader .keyboard {
-            width: 120px;
-            height: 56px;
-            margin-top: -10px;
-            z-index: 1;
-            position: relative;
-        }
-
-        .typewriter-loader .keyboard:before, .typewriter-loader .keyboard:after {
-            content: "";
-            position: absolute;
-        }
-
-        .typewriter-loader .keyboard:before {
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 7px;
-            background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-            transform: perspective(10px) rotateX(2deg);
-            transform-origin: 50% 100%;
-        }
-
-        .typewriter-loader .keyboard:after {
-            left: 2px;
-            top: 25px;
-            width: 11px;
-            height: 4px;
-            border-radius: 2px;
-            box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            -webkit-animation: keyboard05 var(--duration) linear infinite;
-            animation: keyboard05 var(--duration) linear infinite;
-        }
+        .typewriter-loader .slide { width: 92px; height: 20px; border-radius: 3px; margin-left: 14px; transform: translateX(14px); background: linear-gradient(var(--blue), var(--blue-dark)); -webkit-animation: slide05 var(--duration) ease infinite; animation: slide05 var(--duration) ease infinite; }
+        .typewriter-loader .slide:before, .typewriter-loader .slide:after, .typewriter-loader .slide i:before { content: ""; position: absolute; background: var(--tool); }
+        .typewriter-loader .slide:before { width: 2px; height: 8px; top: 6px; left: 100%; }
+        .typewriter-loader .slide:after { left: 94px; top: 3px; height: 14px; width: 6px; border-radius: 3px; }
+        .typewriter-loader .slide i { display: block; position: absolute; right: 100%; width: 6px; height: 4px; top: 4px; background: var(--tool); }
+        .typewriter-loader .slide i:before { right: 100%; top: -2px; width: 4px; border-radius: 2px; height: 14px; }
+        .typewriter-loader .paper { position: absolute; left: 24px; top: -26px; width: 40px; height: 46px; border-radius: 5px; background: var(--paper); transform: translateY(46px); -webkit-animation: paper05 var(--duration) linear infinite; animation: paper05 var(--duration) linear infinite; }
+        .typewriter-loader .paper:before { content: ""; position: absolute; left: 6px; right: 6px; top: 7px; border-radius: 2px; height: 4px; transform: scaleY(0.8); background: var(--text); box-shadow: 0 12px 0 var(--text), 0 24px 0 var(--text), 0 36px 0 var(--text); }
+        .typewriter-loader .keyboard { width: 120px; height: 56px; margin-top: -10px; z-index: 1; position: relative; }
+        .typewriter-loader .keyboard:before, .typewriter-loader .keyboard:after { content: ""; position: absolute; }
+        .typewriter-loader .keyboard:before { top: 0; left: 0; right: 0; bottom: 0; border-radius: 7px; background: linear-gradient(135deg, var(--blue), var(--blue-dark)); transform: perspective(10px) rotateX(2deg); transform-origin: 50% 100%; }
+        .typewriter-loader .keyboard:after { left: 2px; top: 25px; width: 11px; height: 4px; border-radius: 2px; box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); -webkit-animation: keyboard05 var(--duration) linear infinite; animation: keyboard05 var(--duration) linear infinite; }
         
         .custom-btn {
             padding: 0.5rem 1rem;
@@ -244,172 +138,55 @@
             border-color: #010132;
         }
 
-        .loading-dots span {
-            animation: blink 1.4s infinite both;
+        /* NEW: Custom Lang Switcher */
+        #lang-switcher button {
+            background: transparent;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            font-weight: 600;
+            color: #94a3b8; /* text-slate-400 */
+            border-radius: 6px;
+            transition: all 0.2s ease-in-out;
         }
-        .loading-dots span:nth-child(2) {
-            animation-delay: 0.2s;
+        #lang-switcher button:hover {
+            color: #010132;
         }
-        .loading-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes bounce05 {
-            85%, 92%, 100% {
-                transform: translateY(0);
-            }
-
-            89% {
-                transform: translateY(-4px);
-            }
-
-            95% {
-                transform: translateY(2px);
-            }
+        #lang-switcher button.active {
+            color: #010132;
+            background-color: #e2e8f0; /* bg-slate-200 */
         }
 
-        @keyframes slide05 {
-            5% {
-                transform: translateX(14px);
-            }
+        .loading-dots span { animation: blink 1.4s infinite both; }
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
 
-            15%, 30% {
-                transform: translateX(6px);
-            }
-
-            40%, 55% {
-                transform: translateX(0);
-            }
-
-            65%, 70% {
-                transform: translateX(-4px);
-            }
-
-            80%, 89% {
-                transform: translateX(-12px);
-            }
-
-            100% {
-                transform: translateX(14px);
-            }
-        }
-
-        @keyframes paper05 {
-            5% {
-                transform: translateY(46px);
-            }
-
-            20%, 30% {
-                transform: translateY(34px);
-            }
-
-            40%, 55% {
-                transform: translateY(22px);
-            }
-
-            65%, 70% {
-                transform: translateY(10px);
-            }
-
-            80%, 85% {
-                transform: translateY(0);
-            }
-
-            92%, 100% {
-                transform: translateY(46px);
-            }
-        }
-
-        @keyframes keyboard05 {
-            5%, 12%, 21%, 30%, 39%, 48%, 57%, 66%, 75%, 84% {
-                box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            }
-
-            9% {
-                box-shadow: 15px 2px 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            }
-
-            18% {
-                box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 2px 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            }
-
-            27% {
-                box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 12px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            }
-
-            36% {
-                box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 12px 0 var(--key), 60px 12px 0 var(--key), 68px 12px 0 var(--key), 83px 10px 0 var(--key);
-            }
-
-            45% {
-                box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 2px 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            }
-
-            54% {
-                box-shadow: 15px 0 0 var(--key), 30px 2px 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            }
-
-            63% {
-                box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 12px 0 var(--key);
-            }
-
-            72% {
-                box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 2px 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            }
-
-            81% {
-                box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 12px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
-            }
-        }
-
-        @keyframes blink {
-            0% {
-                opacity: .2;
-            }
-            20% {
-                opacity: 1;
-            }
-            100% {
-                opacity: .2;
-            }
-        }
+        @keyframes bounce05 { 85%, 92%, 100% { transform: translateY(0); } 89% { transform: translateY(-4px); } 95% { transform: translateY(2px); } }
+        @keyframes slide05 { 5% { transform: translateX(14px); } 15%, 30% { transform: translateX(6px); } 40%, 55% { transform: translateX(0); } 65%, 70% { transform: translateX(-4px); } 80%, 89% { transform: translateX(-12px); } 100% { transform: translateX(14px); } }
+        @keyframes paper05 { 5% { transform: translateY(46px); } 20%, 30% { transform: translateY(34px); } 40%, 55% { transform: translateY(22px); } 65%, 70% { transform: translateY(10px); } 80%, 85% { transform: translateY(0); } 92%, 100% { transform: translateY(46px); } }
+        @keyframes keyboard05 { 5%, 12%, 21%, 30%, 39%, 48%, 57%, 66%, 75%, 84% { box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); } 9% { box-shadow: 15px 2px 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); } 18% { box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 2px 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); } 27% { box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 12px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); } 36% { box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 12px 0 var(--key), 60px 12px 0 var(--key), 68px 12px 0 var(--key), 83px 10px 0 var(--key); } 45% { box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 2px 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); } 54% { box-shadow: 15px 0 0 var(--key), 30px 2px 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); } 63% { box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 12px 0 var(--key); } 72% { box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 2px 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); } 81% { box-shadow: 15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key), 75px 0 0 var(--key), 90px 0 0 var(--key), 22px 10px 0 var(--key), 37px 12px 0 var(--key), 52px 10px 0 var(--key), 60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key); } }
+        @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
 
         @media (max-width: 1023px) {
-            #history-trigger {
-                position: relative;
-                top: auto;
-                right: auto;
-                transform: none;
-                padding-left: 0;
-                text-align: center;
-                margin-top: 1.5rem;
-            }
-
-            #history-panel {
-                position: relative;
-                left: 0;
-                top: auto;
-                width: 100%;
-                margin-top: 1rem;
-            }
-
-            body.history-open #main-panel {
-                transform: none;
-            }
+            #history-trigger { position: relative; top: auto; right: auto; transform: none; padding-left: 0; text-align: center; margin-top: 1.5rem; }
+            #history-panel { position: relative; left: 0; top: auto; width: 100%; margin-top: 1rem; }
+            body.history-open #main-panel { transform: none; }
+            #lang-switcher { justify-content: center; } /* Center language switcher on mobile */
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
     <div class="flex-grow">
         <div class="container mx-auto px-6 py-12">
+            
+            <div id="lang-switcher" class="flex justify-end gap-2 mb-4">
+                <button id="lang-fr-btn" class="text-sm">FR</button>
+                <button id="lang-en-btn" class="text-sm">EN</button>
+            </div>
+
             <div class="relative">
                 <div id="main-panel" class="md:w-2/3 mx-auto relative transition-transform duration-700 ease-in-out">
                     <div class="bg-white p-8 rounded-2xl shadow-lg flex flex-col">
                         <div class="text-center mb-8">
-                            <div id="lang-switcher" class="flex justify-center gap-2 mb-4">
-                                <button id="lang-fr-btn" class="custom-btn text-sm active">FR</button>
-                                <button id="lang-en-btn" class="custom-btn text-sm">EN</button>
-                            </div>
                             <h2 data-i18n-key="title" class="text-3xl font-bold text-[#010132]">Découvrez des idées de prompts</h2>
                         </div>
                         <div class="flex-grow">
@@ -417,7 +194,7 @@
                             <div class="relative" id="custom-select-container">
                                 <div id="select-selected" class="w-full p-3 border border-slate-300 rounded-lg mb transition-all duration-300 flex justify-between items-center cursor-pointer">
                                     <span id="select-text" data-i18n-key="select_task">Sélectionnez une tâche...</span>
-                                    <svg id="select-arrow" class="select-arrow w-5 h-5 text-slate-500" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                    <svg id="select-arrow" class="select-arrow w-5 h-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                                 </div>
                                 <div id="select-options" class="hidden absolute top-full left-0 right-0 bg-white border border-t-0 border-slate-300 rounded-b-lg shadow-lg z-10 overflow-hidden"></div>
                             </div>
@@ -450,10 +227,12 @@
                             <button id="generate-prompt-btn" class="w-full bg-[#49b048] hover:bg-[#3f993e] text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 disabled:bg-slate-400 flex items-center justify-center" disabled>
                                 <span id="btn-text" data-i18n-key="generate_button">Générer un prompt</span>
                                 <span id="btn-emoji" class="hidden ml-2"> ✨</span>
-                                <svg id="btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <svg id="btn-spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             </button>
                             <div id="prompt-output" class="mt-8 p-4 bg-slate-100 rounded-lg text-slate-800 hidden"></div>
-                            <div id="pro-tip-output" class="mt-4 p-4 rounded-lg hidden" style="background-color: #EEF0FD; border-left: 4px solid #5C86FF; color: #010132;"></div>
+                            
+                            <div id="pro-tip-output" class="mt-4 p-4 rounded-lg hidden" style="background-color: #f0fdf4; border-left: 4px solid #49b048; color: #14532d;"></div>
+                            
                             <button id="copy-btn" data-i18n-key="copy_button" class="mt-8 w-full bg-slate-200 hover:bg-slate-300 text-slate-600 font-bold py-3 px-4 rounded-lg hidden">Copier le prompt</button>
                             <div id="prompt-loading" class="mt-8 text-center hidden">
                                 <div class="flex justify-center items-center py-8">
@@ -552,7 +331,8 @@
                 formatting_instructions_title: `Instructions de formatage pour le prompt que tu génères :`,
                 formatting_instruction_1: `1. Le mot "**Prompt**" doit être en gras (entouré de double astérisques).`,
                 formatting_instruction_2: `2. Les éléments que l'utilisateur doit remplacer par ses propres informations doivent être entre doubles crochets, comme ceci : [[ÉLÉMENT À COMPLÉTER]].`,
-                pro_tip_instruction: `Après avoir généré le prompt, insère le séparateur unique "[PRO_TIP_SEPARATOR]". Ensuite, ajoute une section intitulée "**💡 Astuce Pro**" et donne un conseil court, pertinent et actionnable (en 1-2 phrases) sur la meilleure façon d'utiliser ou d'améliorer ce prompt spécifique.`,
+                // MODIFIED: Pro Tip Text
+                pro_tip_instruction: `Après avoir généré le prompt, insère le séparateur unique "[PRO_TIP_SEPARATOR]". Ensuite, ajoute une section intitulée "**💡 Astuce**" et donne un conseil court, pertinent et actionnable (en 1-2 phrases) sur la meilleure façon d'utiliser ou d'améliorer ce prompt spécifique.`,
                 language_instruction: `La réponse entière (introduction, prompt, et astuce) doit être rédigée en **français**.`
             },
             inspire_me_prompt: `Génère une seule idée de tâche simple et courte pour un employé ou un bénévole d'un organisme à but non lucratif (OBNL) au Québec. La tâche doit être similaire en complexité à "rédiger une demande de subvention" ou "créer une publication pour les réseaux sociaux". Réponds uniquement avec l'intitulé de la tâche, sans aucune phrase d'introduction, formatage (pas de gras, pas d'astérisques), ou ponctuation finale. La réponse doit être en **français**.`
@@ -610,13 +390,15 @@
                 formatting_instructions_title: `Formatting instructions for the prompt you generate:`,
                 formatting_instruction_1: `1. The word "**Prompt**" must be in bold (surrounded by double asterisks).`,
                 formatting_instruction_2: `2. Elements that the user should replace with their own information must be between double brackets, like this: [[ITEM TO COMPLETE]].`,
-                pro_tip_instruction: `After generating the prompt, insert the unique separator "[PRO_TIP_SEPARATOR]". Then, add a section titled "**💡 Pro Tip**" and provide a short, relevant, and actionable piece of advice (in 1-2 sentences) on how to best use or improve this specific prompt.`,
+                // MODIFIED: Pro Tip Text
+                pro_tip_instruction: `After generating the prompt, insert the unique separator "[PRO_TIP_SEPARATOR]". Then, add a section titled "**💡 Tip**" and provide a short, relevant, and actionable piece of advice (in 1-2 sentences) on how to best use or improve this specific prompt.`,
                 language_instruction: `The entire response (introduction, prompt, and tip) must be written in **English**.`
             },
             inspire_me_prompt: `Generate a single, short, and simple task idea for an employee or volunteer of a non-profit organization (NPO) in Quebec. The task should be similar in complexity to "write a grant application" or "create a social media post". Respond only with the task title, without any introductory sentences, formatting (no bold, no asterisks), or final punctuation. The response must be in **English**.`
         }
     };
 
+    // Unchanged JavaScript...
     function parseMarkdown(text) {
         let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\[\[(.*?)\]\]/g, '<code class="bg-slate-200 text-red-600 font-mono py-1 px-2 rounded-md text-sm">[$1]</code>');
@@ -1067,7 +849,6 @@ ${t.language_instruction}` + SAFETY_INSTRUCTIONS;
         updateUIState();
         renderHistory();
 
-        // Initial language setup
         const preferredLang = localStorage.getItem('preferredLang') || 'fr';
         setLanguage(preferredLang);
     });
