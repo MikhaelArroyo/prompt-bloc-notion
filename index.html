@@ -18,7 +18,7 @@
             transition: transform 0.3s ease;
         }
         .select-arrow-up {
-            transform: rotate(180deg);
+            transform: scaleY(-1);
         }
 
         #select-options {
@@ -49,8 +49,8 @@
         #history-panel {
             position: absolute;
             top: 4.5rem; 
-            left: calc(100% + 2rem); 
-            width: 50%;
+            left: calc(100% + 1rem); 
+            width: 40%;
             opacity: 0;
             transform: translateX(-30px);
             pointer-events: none;
@@ -94,7 +94,7 @@
         }
         
         body.history-open #history-arrow {
-            transform: rotate(180deg);
+            transform: scaleX(-1);
         }
         
         #history-panel.history-expanded #see-more-arrow .plus-icon {
