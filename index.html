@@ -21,6 +21,22 @@
             transform: rotate(180deg);
         }
 
+        #select-options {
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        #select-options.is-open {
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 300px;
+            pointer-events: auto;
+        }
+
         /* --- Loading Text Animation --- */
         #loading-text {
             transition: opacity 0.5s ease-in-out;
@@ -36,7 +52,7 @@
             left: calc(100% + 2rem); 
             width: 50%;
             opacity: 0;
-            transform: translateX(30px);
+            transform: translateX(-30px);
             pointer-events: none;
             transition: transform 0.5s ease-out, opacity 0.4s ease-out;
         }
@@ -81,8 +97,13 @@
             transform: rotate(180deg);
         }
         
-        #history-panel.history-expanded #see-more-arrow {
-            transform: rotate(180deg);
+        #history-panel.history-expanded #see-more-arrow .plus-icon {
+            opacity: 0;
+            transform: rotate(90deg);
+        }
+        #history-panel.history-expanded #see-more-arrow .minus-icon {
+            opacity: 1;
+            transform: rotate(0);
         }
         
         #prompt-loading {
@@ -170,7 +191,29 @@
 
         @media (max-width: 1023px) {
             #history-trigger { position: relative; top: auto; right: auto; transform: none; padding-left: 0; text-align: center; margin-top: 1.5rem; }
-            #history-panel { position: relative; left: 0; top: auto; width: 100%; margin-top: 1rem; }
+            #history-panel {
+                position: relative;
+                left: 0;
+                top: auto;
+                width: 100%;
+                margin-top: 1rem;
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+                transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+                transform: translateY(-20px);
+            }
+            body.history-open #history-panel {
+                max-height: 100vh;
+                opacity: 1;
+                transform: translateY(0);
+            }
+            #history-arrow {
+                transform: rotate(90deg);
+            }
+            body.history-open #history-arrow {
+                transform: rotate(270deg);
+            }
             body.history-open #main-panel { transform: none; }
             #lang-switcher { justify-content: center; } /* Center language switcher on mobile */
         }
@@ -198,7 +241,7 @@
                                     <span id="select-text" data-i18n-key="select_task">Sélectionnez une tâche...</span>
                                     <svg id="select-arrow" class="select-arrow w-5 h-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                                 </div>
-                                <div id="select-options" class="hidden absolute top-full left-0 right-0 bg-white border border-t-0 border-slate-300 rounded-b-lg shadow-lg z-10 overflow-hidden"></div>
+                                <div id="select-options" class="absolute top-full left-0 right-0 bg-white border border-t-0 border-slate-300 rounded-b-lg shadow-lg z-10 overflow-hidden"></div>
                             </div>
                             <p data-i18n-key="or_text" class="text-center text-slate-500 my-4">ou</p>
                             <div class="relative mb-4 flex items-center">
@@ -257,9 +300,12 @@
                             <div id="history-list" class="flex-grow space-y-2 max-h-[calc(80vh-8rem)] pr-2">
                             </div>
                             <div id="see-more-trigger" class="hidden cursor-pointer group pt-3 mt-3 border-t border-slate-200">
-                                <h3 class="text-md font-bold text-slate-500 group-hover:text-[#010132] transition-colors">
+                                <h3 class="text-md font-bold text-slate-500 group-hover:text-[#010132] transition-colors flex items-center">
                                     <span id="see-more-text" data-i18n-key="see_more">Voir plus</span>
-                                    <span id="see-more-arrow" class="inline-block align-middle transition-transform duration-300">+</span>
+                                    <span id="see-more-arrow" class="relative w-4 h-4 ml-2 flex items-center justify-center text-xl">
+                                        <span class="plus-icon absolute transition-all duration-300 ease-in-out transform rotate-0 opacity-100">+</span>
+                                        <span class="minus-icon absolute transition-all duration-300 ease-in-out transform -rotate-90 opacity-0">-</span>
+                                    </span>
                                 </h3>
                             </div>
                             <div id="export-history-container" class="pt-3 mt-auto hidden">
@@ -663,12 +709,12 @@
         });
 
         function closeSelect() {
-            optionsContainer.classList.add('hidden');
+            optionsContainer.classList.remove('is-open');
             selectArrow.classList.remove('select-arrow-up');
         }
         selectedDisplay.addEventListener('click', (e) => {
             e.stopPropagation();
-            optionsContainer.classList.toggle('hidden');
+            optionsContainer.classList.toggle('is-open');
             selectArrow.classList.toggle('select-arrow-up');
         });
         window.addEventListener('click', (e) => {
